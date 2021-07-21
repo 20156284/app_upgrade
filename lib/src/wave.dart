@@ -19,7 +19,7 @@ class Wave extends StatefulWidget {
 }
 
 class _WaveState extends State<Wave> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+ late AnimationController _animationController;
 
   @override
   void initState() {

@@ -1,4 +1,4 @@
-package com.will.appupgrade.app_upgrade
+package com.will.app_upgrade
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -20,8 +20,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.util.*
 
-/** AppUpgradePlugin */
-class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
+/** FlutterUpgradePlugin */
+public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
   override fun onDetachedFromActivity() {
@@ -59,7 +59,7 @@ class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     if (call.method == "getAppInfo") {
       getAppInfo(mContext, result)
     } else if (call.method == "getApkDownloadPath") {
-      result.success(mContext.getExternalFilesDir("")?.absolutePath)
+      result.success(mContext.getExternalFilesDir("").absolutePath)
     } else if (call.method == "install") {
       //安装app
       val path = call.argument<String>("path")
@@ -124,7 +124,7 @@ class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       } else {
-        goToMarket.setClassName(marketPackageName.toString(), marketClassName.toString())
+        goToMarket.setClassName(marketPackageName, marketClassName)
       }
       context.startActivity(goToMarket)
     } catch (e: ActivityNotFoundException) {
@@ -156,7 +156,7 @@ class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     val manager = context.packageManager
     val intent = Intent().setPackage(packageName)
     val infos = manager.queryIntentActivities(intent,
-      PackageManager.GET_INTENT_FILTERS)
+            PackageManager.GET_INTENT_FILTERS)
     return if (infos == null || infos.size < 1) {
       false
     } else {
