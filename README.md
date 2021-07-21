@@ -1,13 +1,13 @@
 
-> 官网地址：[http://laomengit.com/plugin/upgrade.html](http://laomengit.com/plugin/upgrade.html)
-
 # 添加依赖
 
 1、在`pubspec.yaml`中加入：
 
 ```
 dependencies:
-  flutter_app_upgrade: ^1.1.0
+  app_upgrade:
+    git:
+     url: https://github.com/20156284/app_upgrade.git
 ```
 
 2、执行flutter命令获取包：
