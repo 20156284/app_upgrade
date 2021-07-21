@@ -118,13 +118,13 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
     try {
       var packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
       val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
-      var nameEmpty = marketPackageName == null || marketPackageName?.isEmpty()
-      var classEmpty = marketClassName == null || marketClassName?.isEmpty()
+      var nameEmpty = marketPackageName == null || marketPackageName.isEmpty()
+      var classEmpty = marketClassName == null || marketClassName.isEmpty()
       val goToMarket = Intent(Intent.ACTION_VIEW, uri)
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       } else {
-        goToMarket.setClassName(marketPackageName, marketClassName)
+        goToMarket.setClassName(marketPackageName.toString(), marketClassName.toString())
       }
       context.startActivity(goToMarket)
     } catch (e: ActivityNotFoundException) {
