@@ -169,25 +169,25 @@ class AppInfo {
 
 class AppUpgradeInfo {
   AppUpgradeInfo(
-      {this.title,
-      this.contents,
-      this.apkDownloadUrl,
+      {required this.title,
+      required this.contents,
+      required this.apkDownloadUrl,
       this.force = false});
 
   ///
   /// title,显示在提示框顶部
   ///
-  final String? title;
+  final String title;
 
   ///
   /// 升级内容
   ///
-  final List<String>? contents;
+  final List<String> contents;
 
   ///
   /// apk下载url
   ///
-  final String? apkDownloadUrl;
+  final String apkDownloadUrl;
 
   ///
   /// 是否强制升级
