@@ -1,4 +1,4 @@
-package com.will.appupgrade.app_upgrade_example
+package com.will.app_upgrade_example
 
 import io.flutter.embedding.android.FlutterActivity
 

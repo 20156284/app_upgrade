@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.will.appupgrade.app_upgrade_example">
+    package="com.will.app_upgrade_example">
    <application
         android:label="app_upgrade_example"
         android:icon="@mipmap/ic_launcher">

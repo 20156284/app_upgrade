@@ -1,4 +1,4 @@
-group 'com.will.appupgrade.app_upgrade'
+group 'com.will.app_upgrade'
 version '1.0-SNAPSHOT'
 
 buildscript {
