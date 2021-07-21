@@ -1,4 +1,4 @@
-package com.will.app_upgrade
+package com.will.appupgrade.app_upgrade
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -20,8 +20,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.util.*
 
-/** FlutterUpgradePlugin */
-public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, ActivityAware {
+/** AppUpgradePlugin */
+class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
   override fun onDetachedFromActivity() {
@@ -40,7 +40,7 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "app_upgrade")
-    channel.setMethodCallHandler(AppUpgradePluginByFlutter())
+    channel.setMethodCallHandler(AppUpgradePlugin())
   }
 
   companion object {
@@ -50,7 +50,7 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
     fun registerWith(registrar: Registrar) {
       this.mContext = registrar.activity()
       val channel = MethodChannel(registrar.messenger(), "app_upgrade")
-      channel.setMethodCallHandler(AppUpgradePluginByFlutter())
+      channel.setMethodCallHandler(AppUpgradePlugin())
     }
 
   }
@@ -156,7 +156,7 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
     val manager = context.packageManager
     val intent = Intent().setPackage(packageName)
     val infos = manager.queryIntentActivities(intent,
-            PackageManager.GET_INTENT_FILTERS)
+      PackageManager.GET_INTENT_FILTERS)
     return if (infos == null || infos.size < 1) {
       false
     } else {
