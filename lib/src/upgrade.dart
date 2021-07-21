@@ -2,7 +2,6 @@ import 'package:app_upgrade/app_upgrade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-
 import 'download_status.dart';
 import 'simple_app_upgrade.dart';
 
@@ -50,7 +49,7 @@ class AppUpgrade {
   ///
   static appUpgrade(
     BuildContext context,
-    Future<AppUpgradeInfo> future, {
+    Future<AppUpgradeInfo>? future, {
     TextStyle? titleStyle,
     TextStyle? contentStyle,
     String? cancelText,
@@ -67,10 +66,10 @@ class AppUpgrade {
     DownloadProgressCallback? downloadProgress,
     DownloadStatusChangeCallback? downloadStatusChange,
   }) {
-    future.then((AppUpgradeInfo appUpgradeInfo) {
+    future!.then((AppUpgradeInfo appUpgradeInfo) {
       if (appUpgradeInfo != null && appUpgradeInfo.title != null) {
         _showUpgradeDialog(
-            context, appUpgradeInfo.title, appUpgradeInfo.contents,
+            context, appUpgradeInfo.title!, appUpgradeInfo.contents!,
             apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
             force: appUpgradeInfo.force!,
             titleStyle: titleStyle,
@@ -132,30 +131,29 @@ class AppUpgrade {
                     borderRadius:
                         BorderRadius.all(Radius.circular(borderRadius))),
                 child: SimpleAppUpgradeWidget(
-                  title: title,
-                  titleStyle: titleStyle,
-                  contents: contents,
-                  contentStyle: contentStyle,
-                  cancelText: cancelText,
-                  cancelTextStyle: cancelTextStyle,
-                  okText: okText,
-                  okTextStyle: okTextStyle,
-                  okBackgroundColors: okBackgroundColors ??
-                      [
-                        Theme.of(context).primaryColor,
-                        Theme.of(context).primaryColor
-                      ],
-                  progressBarColor: progressBarColor,
-                  borderRadius: borderRadius,
-                  downloadUrl: apkDownloadUrl,
-                  force: force,
-                  iosAppId: iosAppId,
-                  appMarketInfo: appMarketInfo,
+                    title: title,
+                    titleStyle: titleStyle,
+                    contents: contents,
+                    contentStyle: contentStyle,
+                    cancelText: cancelText,
+                    cancelTextStyle: cancelTextStyle,
+                    okText: okText,
+                    okTextStyle: okTextStyle,
+                    okBackgroundColors: okBackgroundColors ??
+                        [
+                          Theme.of(context).primaryColor,
+                          Theme.of(context).primaryColor
+                        ],
+                    progressBarColor: progressBarColor,
+                    borderRadius: borderRadius,
+                    downloadUrl: apkDownloadUrl,
+                    force: force,
+                    iosAppId: iosAppId,
+                    appMarketInfo: appMarketInfo,
                     onCancel: onCancel,
                     onOk: onOk,
                     downloadProgress: downloadProgress,
-                    downloadStatusChange: downloadStatusChange
-                )),
+                    downloadStatusChange: downloadStatusChange)),
           );
         });
   }
@@ -171,20 +169,20 @@ class AppInfo {
 
 class AppUpgradeInfo {
   AppUpgradeInfo(
-      {required this.title,
-      required this.contents,
+      {this.title,
+      this.contents,
       this.apkDownloadUrl,
       this.force = false});
 
   ///
   /// title,显示在提示框顶部
   ///
-  final String title;
+  final String? title;
 
   ///
   /// 升级内容
   ///
-  final List<String> contents;
+  final List<String>? contents;
 
   ///
   /// apk下载url
