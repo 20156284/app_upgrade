@@ -67,27 +67,24 @@ class AppUpgrade {
     DownloadStatusChangeCallback? downloadStatusChange,
   }) {
     future!.then((AppUpgradeInfo appUpgradeInfo) {
-      if (appUpgradeInfo != null && appUpgradeInfo.title != null) {
-        _showUpgradeDialog(
-            context, appUpgradeInfo.title!, appUpgradeInfo.contents!,
-            apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
-            force: appUpgradeInfo.force!,
-            titleStyle: titleStyle,
-            contentStyle: contentStyle,
-            cancelText: cancelText,
-            cancelTextStyle: cancelTextStyle,
-            okBackgroundColors: okBackgroundColors,
-            okText: okText,
-            okTextStyle: okTextStyle,
-            borderRadius: borderRadius,
-            progressBarColor: progressBarColor,
-            iosAppId: iosAppId,
-            appMarketInfo: appMarketInfo,
-            onCancel: onCancel,
-            onOk: onOk,
-            downloadProgress: downloadProgress,
-            downloadStatusChange: downloadStatusChange);
-      }
+      _showUpgradeDialog(context, appUpgradeInfo.title, appUpgradeInfo.contents,
+          apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
+          force: appUpgradeInfo.force!,
+          titleStyle: titleStyle,
+          contentStyle: contentStyle,
+          cancelText: cancelText,
+          cancelTextStyle: cancelTextStyle,
+          okBackgroundColors: okBackgroundColors,
+          okText: okText,
+          okTextStyle: okTextStyle,
+          borderRadius: borderRadius,
+          progressBarColor: progressBarColor,
+          iosAppId: iosAppId,
+          appMarketInfo: appMarketInfo,
+          onCancel: onCancel,
+          onOk: onOk,
+          downloadProgress: downloadProgress,
+          downloadStatusChange: downloadStatusChange);
     }).catchError((onError) {
       print('$onError');
     });
@@ -171,7 +168,7 @@ class AppUpgradeInfo {
   AppUpgradeInfo(
       {required this.title,
       required this.contents,
-      required this.apkDownloadUrl,
+      this.apkDownloadUrl,
       this.force = false});
 
   ///
@@ -187,7 +184,7 @@ class AppUpgradeInfo {
   ///
   /// apk下载url
   ///
-  final String apkDownloadUrl;
+  final String? apkDownloadUrl;
 
   ///
   /// 是否强制升级

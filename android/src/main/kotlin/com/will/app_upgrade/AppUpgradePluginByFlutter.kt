@@ -59,7 +59,7 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
     if (call.method == "getAppInfo") {
       getAppInfo(mContext, result)
     } else if (call.method == "getApkDownloadPath") {
-      result.success(mContext.getExternalFilesDir("").absolutePath)
+      result.success(mContext.getExternalFilesDir("")?.absolutePath)
     } else if (call.method == "install") {
       //安装app
       val path = call.argument<String>("path")
@@ -118,8 +118,8 @@ public class AppUpgradePluginByFlutter : FlutterPlugin, MethodCallHandler, Activ
     try {
       var packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
       val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
-      var nameEmpty = marketPackageName == null || marketPackageName.isEmpty()
-      var classEmpty = marketClassName == null || marketClassName.isEmpty()
+      var nameEmpty = marketPackageName == null || marketPackageName?.isEmpty()
+      var classEmpty = marketClassName == null || marketClassName?.isEmpty()
       val goToMarket = Intent(Intent.ACTION_VIEW, uri)
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
