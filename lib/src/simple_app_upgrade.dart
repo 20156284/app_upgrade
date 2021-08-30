@@ -299,6 +299,9 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           valueColor: AlwaysStoppedAnimation(widget.progressBarColor ??
               Theme.of(context).primaryColor.withOpacity(0.4)),
           borderRadius: widget.borderRadius,
+          borderColor: widget.progressBarColor ??
+              Theme.of(context).primaryColor.withOpacity(0.4),
+          borderWidth: 0.5,
         );
   }
 
