@@ -92,7 +92,7 @@ class _HomeState extends State<Home> {
           '5、新增加了分类查看功能'
         ],
         force: false,
-        apkDownloadUrl: ""
+        apkDownloadUrl: "https://aabtc.oss-cn-shanghai.aliyuncs.com/814d309ea161379612efe7ff05ed78ad.apk"
       );
     });
   }
