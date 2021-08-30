@@ -92,6 +92,7 @@ class _HomeState extends State<Home> {
           '5、新增加了分类查看功能'
         ],
         force: false,
+        apkDownloadUrl: ""
       );
     });
   }
