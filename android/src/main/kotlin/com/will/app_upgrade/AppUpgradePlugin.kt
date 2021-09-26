@@ -1,5 +1,6 @@
 package com.will.app_upgrade
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -59,7 +60,7 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     if (call.method == "getAppInfo") {
       getAppInfo(mContext, result)
     } else if (call.method == "getApkDownloadPath") {
-      result.success(mContext.getExternalFilesDir("").absolutePath)
+      result.success(mContext.getExternalFilesDir("")?.absolutePath)
     } else if (call.method == "install") {
       //安装app
       val path = call.argument<String>("path")
@@ -124,7 +125,7 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       } else {
-        goToMarket.setClassName(marketPackageName, marketClassName)
+        goToMarket.setClassName(marketPackageName!!, marketClassName!!)
       }
       context.startActivity(goToMarket)
     } catch (e: ActivityNotFoundException) {
@@ -152,11 +153,12 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
    * 是否存在当前应用市场
    *
    */
+  @SuppressLint("WrongConstant")
   fun isPackageExist(context: Context, packageName: String?): Boolean {
     val manager = context.packageManager
     val intent = Intent().setPackage(packageName)
     val infos = manager.queryIntentActivities(intent,
-            PackageManager.GET_INTENT_FILTERS)
+      PackageManager.GET_INTENT_FILTERS)
     return if (infos == null || infos.size < 1) {
       false
     } else {

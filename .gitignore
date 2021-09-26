@@ -32,7 +32,7 @@ doc/api/
 .svn/
 
 # IntelliJ related
-*.iml
+#*.iml
 *.ipr
 *.iws
 .idea/
