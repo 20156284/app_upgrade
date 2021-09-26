@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'app_market.dart';
@@ -137,17 +138,15 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          _buildInfoWidget(context),
-          _downloadProgress > 0
-              ? Positioned.fill(child: _buildDownloadProgress())
-              : Container(
-                  height: 10,
-                )
-        ],
-      ),
+    return Stack(
+      children: <Widget>[
+        _buildInfoWidget(context),
+        _downloadProgress > 0
+            ? Positioned.fill(child: _buildDownloadProgress())
+            : Container(
+                height: 10,
+              )
+      ],
     );
   }
 
@@ -155,18 +154,16 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 信息展示widget
   ///
   Widget _buildInfoWidget(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          //标题
-          _buildTitle(),
-          //更新信息
-          _buildAppInfo(),
-          //操作按钮
-          _buildAction()
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        //标题
+        _buildTitle(),
+        //更新信息
+        _buildAppInfo(),
+        //操作按钮
+        _buildAction()
+      ],
     );
   }
 
@@ -175,9 +172,9 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildTitle() {
     return Padding(
-        padding: EdgeInsets.only(top: 20, bottom: 30),
+        padding: const EdgeInsets.only(top: 20, bottom: 30),
         child: Text(widget.title,
-            style: widget.titleStyle ?? TextStyle(fontSize: 22)));
+            style: widget.titleStyle ?? const TextStyle(fontSize: 22)));
   }
 
   ///
@@ -185,7 +182,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildAppInfo() {
     return Container(
-        padding: EdgeInsets.only(left: 15, right: 15, bottom: 30),
+        padding: const EdgeInsets.only(left: 15, right: 15, bottom: 30),
         height: 200,
         child: ListView(
           children: widget.contents.map((f) {
@@ -203,7 +200,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   _buildAction() {
     return Column(
       children: <Widget>[
-        Divider(
+        const Divider(
           height: 1,
           color: Colors.grey,
         ),
@@ -262,8 +259,10 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     if (widget.okBackgroundColors == null ||
         widget.okBackgroundColors!.length != 2) {
       _okBackgroundColors = [
-        Theme.of(context).primaryColor,
-        Theme.of(context).primaryColor
+        CupertinoColors.systemBlue,
+        CupertinoColors.systemBlue,
+        // Theme.of(context).primaryColor,
+        // Theme.of(context).primaryColor
       ];
     }
     return Ink(
@@ -279,7 +278,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           height: 45,
           alignment: Alignment.center,
           child: Text(widget.okText ?? '立即体验',
-              style: widget.okTextStyle ?? TextStyle(color: Colors.white)),
+              style: widget.okTextStyle ?? const TextStyle(color: Colors.black)),
         ),
         onTap: () {
           _clickOk();
