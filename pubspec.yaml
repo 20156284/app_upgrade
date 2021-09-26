@@ -36,9 +36,9 @@ flutter:
         pluginClass: AppUpgradePlugin
       ios:
         pluginClass: AppUpgradePlugin
-      web:
-        pluginClass: AppUpgradeWeb
-        fileName: app_upgrade_web.dart
+#      web:
+#        pluginClass: AppUpgradeWeb
+#        fileName: app_upgrade_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
