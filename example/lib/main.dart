@@ -81,8 +81,10 @@ class _HomeState extends State<Home> {
 
   Future<AppUpgradeInfo> _checkAppInfo() async {
     //这里一般访问网络接口，将返回的数据解析成如下格式
-    return Future.delayed(Duration(seconds: 1), () {
-      return AppUpgradeInfo(
+    // return Future.delayed(const Duration(seconds: 1), () {
+    //
+    // });
+    return AppUpgradeInfo(
         title: '新版本V1.1.1',
         contents: [
           '1、支持立体声蓝牙耳机，同时改善配对性能',
@@ -93,8 +95,7 @@ class _HomeState extends State<Home> {
         ],
         force: false,
         apkDownloadUrl: "https://aabtc.oss-cn-shanghai.aliyuncs.com/814d309ea161379612efe7ff05ed78ad.apk"
-      );
-    });
+    );
   }
 
   _getAppInfo() async {
