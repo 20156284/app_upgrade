@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:app_upgrade/app_upgrade.dart';
 
-import 'upgrade.dart';
+import 'app_market.dart';
+import 'app_upgrade.dart';
 
 class FlutterUpgrade {
-  static const MethodChannel _channel = const MethodChannel('app_upgrade');
+  static const MethodChannel _channel =
+      const MethodChannel('app_upgrade');
 
   ///
   /// 获取app信息

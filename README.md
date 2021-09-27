@@ -1,13 +1,13 @@
 
+> 官网地址：[http://laomengit.com/plugin/upgrade.html](http://laomengit.com/plugin/upgrade.html)
+
 # 添加依赖
 
 1、在`pubspec.yaml`中加入：
 
 ```
 dependencies:
-  app_upgrade:
-    git:
-     url: https://github.com/20156284/app_upgrade.git
+  app_upgrade: ^1.1.0
 ```
 
 2、执行flutter命令获取包：
@@ -18,7 +18,7 @@ flutter pub get`
 3、引入
 
 ```
-import 'package:flutter_app_upgrade/flutter_app_upgrade.dart';
+import 'package:app_upgrade/app_upgrade.dart';
 
 ```
 
@@ -26,22 +26,26 @@ import 'package:flutter_app_upgrade/flutter_app_upgrade.dart';
 
 ```
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.flutter.laomeng.flutter_upgrade_example">
-    <application
-        android:name="io.flutter.app.FlutterApplication"
-        android:icon="@mipmap/ic_launcher"
-        android:label="flutter_upgrade_example">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.will.app_upgrade_example">
+     <application
+            android:label="AppUpgradeExample"
+            android:icon="@mipmap/ic_launcher">
 				...
+				
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.flutter.laomeng.flutter_upgrade_example.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
+                android:name="androidx.core.content.FileProvider"
+                android:authorities="${applicationId}.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                tools:replace="android:resource"
-                android:resource="@xml/file_paths" />
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    tools:replace="android:resource"
+                    android:resource="@xml/file_paths"/>
         </provider>
     </application>
 </manifest>

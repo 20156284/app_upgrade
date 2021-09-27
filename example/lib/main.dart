@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:app_upgrade/app_upgrade.dart';
 import 'dart:async';
-
+import 'package:app_upgrade/app_upgrade.dart';
 
 void main() => runApp(MyApp());
 
@@ -64,7 +63,7 @@ class _HomeState extends State<Home> {
       cancelText: '以后再说',
       okText: '马上升级',
       iosAppId: 'id88888888',
-      appMarketInfo: AppMarket.huaWei,
+      // appMarketInfo: AppMarket.huaWei,
       onCancel: () {
         print('onCancel');
       },
@@ -93,6 +92,7 @@ class _HomeState extends State<Home> {
           '5、新增加了分类查看功能'
         ],
         force: false,
+        apkDownloadUrl: "https://aabtc.oss-cn-shanghai.aliyuncs.com/814d309ea161379612efe7ff05ed78ad.apk"
       );
     });
   }

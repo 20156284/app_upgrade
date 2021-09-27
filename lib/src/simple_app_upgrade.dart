@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:app_upgrade/app_upgrade.dart';
-import 'package:app_upgrade/src/download_status.dart';
 
+import 'app_market.dart';
+import 'app_upgrade.dart';
+import 'download_status.dart';
+import 'flutter_upgrade.dart';
 import 'liquid_progress_indicator.dart';
-import 'upgrade.dart';
 
 ///
 /// des:app升级提示控件
@@ -37,7 +39,7 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   ///
   /// 升级标题
   ///
-  final String? title;
+  final String title;
 
   ///
   /// 标题样式
@@ -47,7 +49,7 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   ///
   /// 升级提示内容
   ///
-  final List<String>? contents;
+  final List<String> contents;
 
   ///
   /// 提示内容样式
@@ -97,12 +99,12 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   ///
   /// 圆角半径
   ///
-  final double? borderRadius;
+  final double borderRadius;
 
   ///
   /// 是否强制升级,设置true没有取消按钮
   ///
-  final bool? force;
+  final bool force;
 
   ///
   /// ios app id,用于跳转app store
@@ -136,17 +138,15 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          _buildInfoWidget(context),
-          _downloadProgress > 0
-              ? Positioned.fill(child: _buildDownloadProgress())
-              : Container(
-                  height: 10,
-                )
-        ],
-      ),
+    return Stack(
+      children: <Widget>[
+        _buildInfoWidget(context),
+        _downloadProgress > 0
+            ? Positioned.fill(child: _buildDownloadProgress())
+            : Container(
+                height: 10,
+              )
+      ],
     );
   }
 
@@ -154,18 +154,16 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 信息展示widget
   ///
   Widget _buildInfoWidget(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          //标题
-          _buildTitle(),
-          //更新信息
-          _buildAppInfo(),
-          //操作按钮
-          _buildAction()
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        //标题
+        _buildTitle(),
+        //更新信息
+        _buildAppInfo(),
+        //操作按钮
+        _buildAction()
+      ],
     );
   }
 
@@ -174,9 +172,9 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildTitle() {
     return Padding(
-        padding: EdgeInsets.only(top: 20, bottom: 30),
-        child: Text(widget.title ?? '',
-            style: widget.titleStyle ?? TextStyle(fontSize: 22)));
+        padding: const EdgeInsets.only(top: 20, bottom: 30),
+        child: Text(widget.title,
+            style: widget.titleStyle ?? const TextStyle(fontSize: 22)));
   }
 
   ///
@@ -184,10 +182,10 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildAppInfo() {
     return Container(
-        padding: EdgeInsets.only(left: 15, right: 15, bottom: 30),
+        padding: const EdgeInsets.only(left: 15, right: 15, bottom: 30),
         height: 200,
         child: ListView(
-          children: widget.contents!.map((f) {
+          children: widget.contents.map((f) {
             return Text(
               f,
               style: widget.contentStyle ?? TextStyle(),
@@ -202,13 +200,13 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   _buildAction() {
     return Column(
       children: <Widget>[
-        Divider(
+        const Divider(
           height: 1,
           color: Colors.grey,
         ),
         Row(
           children: <Widget>[
-            widget.force!
+            widget.force
                 ? Container()
                 : Expanded(
                     child: _buildCancelActionButton(),
@@ -229,10 +227,10 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     return Ink(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(widget.borderRadius??8))),
+              bottomLeft: Radius.circular(widget.borderRadius))),
       child: InkWell(
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(widget.borderRadius??8)),
+              bottomLeft: Radius.circular(widget.borderRadius)),
           child: Container(
             height: 45,
             alignment: Alignment.center,
@@ -251,18 +249,20 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildOkActionButton() {
     var borderRadius =
-        BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius??8));
-    if (widget.force!) {
+        BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius));
+    if (widget.force) {
       borderRadius = BorderRadius.only(
-          bottomRight: Radius.circular(widget.borderRadius??8),
-          bottomLeft: Radius.circular(widget.borderRadius??8));
+          bottomRight: Radius.circular(widget.borderRadius),
+          bottomLeft: Radius.circular(widget.borderRadius));
     }
     var _okBackgroundColors = widget.okBackgroundColors;
     if (widget.okBackgroundColors == null ||
         widget.okBackgroundColors!.length != 2) {
       _okBackgroundColors = [
-        Theme.of(context).primaryColor,
-        Theme.of(context).primaryColor
+        CupertinoColors.systemBlue,
+        CupertinoColors.systemBlue,
+        // Theme.of(context).primaryColor,
+        // Theme.of(context).primaryColor
       ];
     }
     return Ink(
@@ -278,7 +278,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           height: 45,
           alignment: Alignment.center,
           child: Text(widget.okText ?? '立即体验',
-              style: widget.okTextStyle ?? TextStyle(color: Colors.white)),
+              style: widget.okTextStyle ?? const TextStyle(color: Colors.black)),
         ),
         onTap: () {
           _clickOk();
@@ -297,7 +297,10 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           direction: Axis.vertical,
           valueColor: AlwaysStoppedAnimation(widget.progressBarColor ??
               Theme.of(context).primaryColor.withOpacity(0.4)),
-          borderRadius: widget.borderRadius!,
+          borderRadius: widget.borderRadius,
+          borderColor: widget.progressBarColor ??
+              Theme.of(context).primaryColor.withOpacity(0.4),
+          borderWidth: 0.5,
         );
   }
 
@@ -352,7 +355,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     } catch (e) {
       print('$e');
       _downloadProgress = 0;
-      _updateDownloadStatus(DownloadStatus.error,error: e);
+      _updateDownloadStatus(DownloadStatus.error, error: e);
     }
   }
 

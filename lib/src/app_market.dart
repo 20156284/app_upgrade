@@ -28,7 +28,7 @@ class AppMarket {
   }
 
   static AppMarketInfo getBuildInMarket(String packageName) {
-    late AppMarketInfo _info;
+   late AppMarketInfo _info;
     buildInMarketList.forEach((f) {
       if (f.packageName == packageName) {
         _info = f;

@@ -1,5 +1,6 @@
-package com.will.appupgrade.app_upgrade
+package com.will.app_upgrade
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -20,8 +21,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.util.*
 
-/** AppUpgradePlugin */
-class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
+/** FlutterUpgradePlugin */
+public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
   override fun onDetachedFromActivity() {
@@ -124,7 +125,7 @@ class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       } else {
-        goToMarket.setClassName(marketPackageName.toString(), marketClassName.toString())
+        goToMarket.setClassName(marketPackageName!!, marketClassName!!)
       }
       context.startActivity(goToMarket)
     } catch (e: ActivityNotFoundException) {
@@ -152,6 +153,7 @@ class AppUpgradePlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
    * 是否存在当前应用市场
    *
    */
+  @SuppressLint("WrongConstant")
   fun isPackageExist(context: Context, packageName: String?): Boolean {
     val manager = context.packageManager
     val intent = Intent().setPackage(packageName)

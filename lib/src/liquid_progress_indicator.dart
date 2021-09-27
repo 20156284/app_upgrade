@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:app_upgrade/src/wave.dart';
+
+import 'wave.dart';
+
 
 class LiquidLinearProgressIndicator extends ProgressIndicator {
   ///The width of the border, if this is set [borderColor] must also be set.
@@ -9,13 +11,13 @@ class LiquidLinearProgressIndicator extends ProgressIndicator {
   final Color? borderColor;
 
   ///The radius of the border.
-  final double borderRadius;
+  final double? borderRadius;
 
   ///The widget to show in the center of the progress indicator.
   final Widget? center;
 
   ///The direction the liquid travels.
-  final Axis? direction;
+  final Axis direction;
 
   LiquidLinearProgressIndicator({
     Key? key,
@@ -24,7 +26,7 @@ class LiquidLinearProgressIndicator extends ProgressIndicator {
     Animation<Color>? valueColor,
     this.borderWidth,
     this.borderColor,
-    required this.borderRadius,
+    this.borderRadius,
     this.center,
     this.direction = Axis.horizontal,
   }) : super(
@@ -55,24 +57,24 @@ class _LiquidLinearProgressIndicatorState
   Widget build(BuildContext context) {
     return ClipPath(
       clipper: _LinearClipper(
-        radius: widget.borderRadius,
+        radius: widget.borderRadius!,
       ),
       child: CustomPaint(
         painter: _LinearPainter(
           color: widget._getBackgroundColor(context),
-          radius: widget.borderRadius,
+          radius: widget.borderRadius!,
         ),
         foregroundPainter: _LinearBorderPainter(
           color: widget.borderColor!,
           width: widget.borderWidth!,
-          radius: widget.borderRadius,
+          radius: widget.borderRadius!,
         ),
         child: Stack(
           children: <Widget>[
             Wave(
               value: widget.value!,
               color: widget._getValueColor(context),
-              direction: widget.direction!,
+              direction: widget.direction,
             ),
             widget.center != null ? Center(child: widget.center) : Container(),
           ],
@@ -83,18 +85,18 @@ class _LiquidLinearProgressIndicatorState
 }
 
 class _LinearPainter extends CustomPainter {
-  final Color? color;
-  final double? radius;
+  final Color color;
+  final double radius;
 
   _LinearPainter({required this.color, required this.radius});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color!;
+    final paint = Paint()..color = color;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(0, 0, size.width, size.height),
-          Radius.circular(radius ?? 0),
+          Radius.circular(radius),
         ),
         paint);
   }
@@ -116,6 +118,7 @@ class _LinearBorderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
