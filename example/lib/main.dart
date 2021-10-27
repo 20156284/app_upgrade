@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:app_upgrade/app_upgrade.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -26,7 +28,7 @@ class _MyAppState extends State<MyApp> {
           children: <Widget>[
             Center(
               child: Column(
-                children: <Widget>[
+                children: const <Widget>[
                   Home(),
                 ],
               ),
@@ -39,13 +41,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   AppInfo? _appInfo;
-  List<AppMarketInfo> _appMarketList = [];
   String _installMarkets = '';
 
   @override
@@ -65,16 +68,16 @@ class _HomeState extends State<Home> {
       iosAppId: 'id88888888',
       // appMarketInfo: AppMarket.huaWei,
       onCancel: () {
-        print('onCancel');
+        debugPrint('onCancel');
       },
       onOk: () {
-        print('onOk');
+        debugPrint('onOk');
       },
       downloadProgress: (count, total) {
-        print('count:$count,total:$total');
+        debugPrint('count:$count,total:$total');
       },
       downloadStatusChange: (DownloadStatus status, {dynamic error}) {
-        print('status:$status,error:$error');
+        debugPrint('status:$status,error:$error');
       },
     );
   }
@@ -107,9 +110,9 @@ class _HomeState extends State<Home> {
 
   _getInstallMarket() async {
     List<String> marketList = await FlutterUpgrade.getInstallMarket();
-    marketList.forEach((f) {
+    for (var f in marketList) {
       _installMarkets += '$f,';
-    });
+    }
   }
 
   @override

@@ -42,10 +42,10 @@ class LiquidLinearProgressIndicator extends ProgressIndicator {
   }
 
   Color _getBackgroundColor(BuildContext context) =>
-      backgroundColor ?? Color(0x0000BFFF); //Theme.of(context).backgroundColor;
+      backgroundColor ?? const Color(0x0000BFFF); //Theme.of(context).backgroundColor;
 
   Color _getValueColor(BuildContext context) =>
-      valueColor?.value ?? Color(0x6600BFFF); //Theme.of(context).accentColor;
+      valueColor?.value ?? const Color(0x6600BFFF); //Theme.of(context).accentColor;
 
   @override
   State<StatefulWidget> createState() => _LiquidLinearProgressIndicatorState();

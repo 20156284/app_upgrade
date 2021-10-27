@@ -17,23 +17,23 @@ class AppMarket {
   ///
   static List<AppMarketInfo> getBuildInMarketList(List<String> packageNames) {
     List<AppMarketInfo> marketList = [];
-    packageNames.forEach((packageName) {
-      buildInMarketList.forEach((f) {
+    for (var packageName in packageNames) {
+      for (var f in buildInMarketList) {
         if (f.packageName == packageName) {
           marketList.add(f);
         }
-      });
-    });
+      }
+    }
     return marketList;
   }
 
   static AppMarketInfo getBuildInMarket(String packageName) {
    late AppMarketInfo _info;
-    buildInMarketList.forEach((f) {
+    for (var f in buildInMarketList) {
       if (f.packageName == packageName) {
         _info = f;
       }
-    });
+    }
     return _info;
   }
 
@@ -58,48 +58,48 @@ class AppMarket {
   ///
   /// 小米
   ///
-  static final xiaoMi = AppMarketInfo(
+  static const xiaoMi = AppMarketInfo(
       'xiaoMi', "com.xiaomi.market", "com.xiaomi.market.ui.AppDetailActivity");
 
   ///
   /// 魅族
   ///
-  static final meiZu = AppMarketInfo('meiZu', "com.meizu.mstore",
+  static const meiZu = AppMarketInfo('meiZu', "com.meizu.mstore",
       "com.meizu.flyme.appcenter.activitys.AppMainActivity");
 
   ///
   /// vivo
   ///
-  static final vivo = AppMarketInfo(
+  static const vivo = AppMarketInfo(
       'vivo', "com.bbk.appstore", "com.bbk.appstore.ui.AppStoreTabActivity");
 
   ///
   /// oppo
   ///
-  static final oppo = AppMarketInfo('oppo', "com.oppo.market", "a.a.a.aoz");
+  static const oppo = AppMarketInfo('oppo', "com.oppo.market", "a.a.a.aoz");
 
   ///
   /// 华为
   ///
-  static final huaWei = AppMarketInfo('huaWei', "com.huawei.appmarket",
+  static const huaWei = AppMarketInfo('huaWei', "com.huawei.appmarket",
       "com.huawei.appmarket.service.externalapi.view.ThirdApiActivity");
 
   ///
   /// zte
   ///
-  static final zte = AppMarketInfo('zte', "zte.com.market",
+  static const zte = AppMarketInfo('zte', "zte.com.market",
       "zte.com.market.view.zte.drain.ZtDrainTrafficActivity");
 
   ///
   /// 360
   ///
-  static final qiHoo = AppMarketInfo('qiHoo', "com.qihoo.appstore",
+  static const qiHoo = AppMarketInfo('qiHoo', "com.qihoo.appstore",
       "com.qihoo.appstore.distribute.SearchDistributionActivity");
 
   ///
   /// 应用宝
   ///
-  static final tencent = AppMarketInfo(
+  static const tencent = AppMarketInfo(
       'tencent',
       "com.tencent.android.qqdownloader",
       "com.tencent.pangu.link.LinkProxyActivity");
@@ -107,13 +107,13 @@ class AppMarket {
   ///
   /// pp助手
   ///
-  static final pp = AppMarketInfo(
+  static const pp = AppMarketInfo(
       'pp', "com.pp.assistant", "com.pp.assistant.activity.MainActivity");
 
   ///
   /// 豌豆荚
   ///
-  static final wanDouJia = AppMarketInfo('wanDouJia', "com.wandoujia.phoenix2",
+  static const wanDouJia = AppMarketInfo('wanDouJia', "com.wandoujia.phoenix2",
       "com.pp.assistant.activity.PPMainActivity");
 }
 

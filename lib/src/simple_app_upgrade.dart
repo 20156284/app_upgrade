@@ -127,7 +127,7 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
 }
 
 class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
-  static final String _downloadApkName = 'temp.apk';
+  static const String _downloadApkName = 'temp.apk';
 
   ///
   /// 下载进度
@@ -174,7 +174,11 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     return Padding(
         padding: const EdgeInsets.only(top: 20, bottom: 30),
         child: Text(widget.title,
-            style: widget.titleStyle ?? const TextStyle(fontSize: 22)));
+            style: widget.titleStyle ??
+                const TextStyle(
+                    fontSize: 22,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold)));
   }
 
   ///
@@ -188,7 +192,8 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           children: widget.contents.map((f) {
             return Text(
               f,
-              style: widget.contentStyle ?? TextStyle(),
+              style: widget.contentStyle ??
+                  const TextStyle(fontSize: 14, color: Colors.black),
             );
           }).toList(),
         ));
@@ -234,8 +239,11 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           child: Container(
             height: 45,
             alignment: Alignment.center,
-            child: Text(widget.cancelText ?? '以后再说',
-                style: widget.cancelTextStyle ?? TextStyle()),
+            child: Text(
+              widget.cancelText ?? '以后再说',
+              style: widget.cancelTextStyle ??
+                  const TextStyle(fontSize: 16, color: Colors.black),
+            ),
           ),
           onTap: () {
             widget.onCancel?.call();
@@ -259,10 +267,8 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     if (widget.okBackgroundColors == null ||
         widget.okBackgroundColors!.length != 2) {
       _okBackgroundColors = [
-        CupertinoColors.systemBlue,
-        CupertinoColors.systemBlue,
-        // Theme.of(context).primaryColor,
-        // Theme.of(context).primaryColor
+        Colors.blue,
+        Colors.blue
       ];
     }
     return Ink(
@@ -277,8 +283,12 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         child: Container(
           height: 45,
           alignment: Alignment.center,
-          child: Text(widget.okText ?? '立即体验',
-              style: widget.okTextStyle ?? const TextStyle(color: Colors.black)),
+          child: Text(
+            widget.okText ?? '立即体验',
+            style: widget.okTextStyle ??
+                const TextStyle(
+                    fontSize: 16, color: CupertinoColors.systemBackground),
+          ),
         ),
         onTap: () {
           _clickOk();
@@ -295,8 +305,8 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         LiquidLinearProgressIndicator(
           value: _downloadProgress,
           direction: Axis.vertical,
-          valueColor: AlwaysStoppedAnimation(widget.progressBarColor ??
-              Theme.of(context).primaryColor.withOpacity(0.4)),
+          valueColor: AlwaysStoppedAnimation(
+              widget.progressBarColor ?? Colors.blue.withOpacity(0.4)),
           borderRadius: widget.borderRadius,
           borderColor: widget.progressBarColor ??
               Theme.of(context).primaryColor.withOpacity(0.4),
@@ -330,7 +340,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     if (_downloadStatus == DownloadStatus.start ||
         _downloadStatus == DownloadStatus.downloading ||
         _downloadStatus == DownloadStatus.done) {
-      print('当前下载状态：$_downloadStatus,不能重复下载。');
+      debugPrint('当前下载状态：$_downloadStatus,不能重复下载。');
       return;
     }
 
@@ -353,7 +363,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         }
       });
     } catch (e) {
-      print('$e');
+      debugPrint('$e');
       _downloadProgress = 0;
       _updateDownloadStatus(DownloadStatus.error, error: e);
     }

@@ -7,7 +7,7 @@ import 'app_upgrade.dart';
 
 class FlutterUpgrade {
   static const MethodChannel _channel =
-      const MethodChannel('app_upgrade');
+      MethodChannel('app_upgrade');
 
   ///
   /// 获取app信息
@@ -48,7 +48,7 @@ class FlutterUpgrade {
   ///
   static getInstallMarket({List<String>? marketPackageNames}) async {
     List<String> packageNameList = AppMarket.buildInPackageNameList;
-    if (marketPackageNames != null && marketPackageNames.length > 0) {
+    if (marketPackageNames != null && marketPackageNames.isNotEmpty) {
       packageNameList.addAll(marketPackageNames);
     }
     var map = {'packages': packageNameList};
