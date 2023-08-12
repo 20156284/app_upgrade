@@ -252,31 +252,25 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 取消按钮
   ///
   _buildCancelActionButton() {
-    return Ink(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(widget.borderRadius),
-        ),
+    return InkWell(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(widget.borderRadius),
       ),
-      child: InkWell(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(widget.borderRadius),
+      child: widget.cancelWidget ??
+          Container(
+            height: 45,
+            color: widget.cancelBgColor,
+            alignment: Alignment.center,
+            child: Text(
+              widget.cancelText ?? '以后再说',
+              style: widget.cancelTextStyle ??
+                  const TextStyle(fontSize: 16, color: Colors.black),
+            ),
           ),
-          child: widget.cancelWidget ??
-              Container(
-                height: 45,
-                color: widget.cancelBgColor,
-                alignment: Alignment.center,
-                child: Text(
-                  widget.cancelText ?? '以后再说',
-                  style: widget.cancelTextStyle ??
-                      const TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              ),
-          onTap: () {
-            widget.onCancel?.call();
-            Navigator.of(context).pop();
-          }),
+      onTap: () {
+        widget.onCancel?.call();
+        Navigator.of(context).pop();
+      },
     );
   }
 
@@ -284,32 +278,25 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 确定按钮
   ///
   _buildOkActionButton() {
-    return Ink(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(widget.borderRadius),
-        ),
+    return InkWell(
+      borderRadius: BorderRadius.only(
+        bottomRight: Radius.circular(widget.borderRadius),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(widget.borderRadius),
-        ),
-        child: widget.okWidget ??
-            Container(
-              height: 45,
-              color: widget.okBgColor,
-              alignment: Alignment.center,
-              child: Text(
-                widget.okText ?? '立即体验',
-                style: widget.okTextStyle ??
-                    const TextStyle(
-                        fontSize: 16, color: CupertinoColors.systemBackground),
-              ),
+      child: widget.okWidget ??
+          Container(
+            height: 45,
+            color: widget.okBgColor,
+            alignment: Alignment.center,
+            child: Text(
+              widget.okText ?? '立即体验',
+              style: widget.okTextStyle ??
+                  const TextStyle(
+                      fontSize: 16, color: CupertinoColors.systemBackground),
             ),
-        onTap: () {
-          _clickOk();
-        },
-      ),
+          ),
+      onTap: () {
+        _clickOk();
+      },
     );
   }
 

@@ -51,13 +51,16 @@ class _HomeState extends State<Home> {
   }
 
   _checkAppUpgrade() async {
-    final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.0.0+0');
+    // final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'v1.1.1+1000');
+    // final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.1.1+1000');
+    final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.1.1');
     if (isUp) {
       AppUpgrade.appUpgrade(
         context,
         _checkAppInfo(),
         cancelText: '以后再说',
         okText: '马上升级',
+        okBgColor: Colors.red,
         iosAppId: 'id88888888',
         // appMarketInfo: AppMarket.huaWei,
         onCancel: () {
