@@ -50,27 +50,30 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-  _checkAppUpgrade() {
-    AppUpgrade.appUpgrade(
-      context,
-      _checkAppInfo(),
-      cancelText: '以后再说',
-      okText: '马上升级',
-      iosAppId: 'id88888888',
-      // appMarketInfo: AppMarket.huaWei,
-      onCancel: () {
-        debugPrint('onCancel');
-      },
-      onOk: () {
-        debugPrint('onOk');
-      },
-      downloadProgress: (count, total) {
-        debugPrint('count:$count,total:$total');
-      },
-      downloadStatusChange: (DownloadStatus status, {dynamic error}) {
-        debugPrint('status:$status,error:$error');
-      },
-    );
+  _checkAppUpgrade() async {
+    final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.0.0+0');
+    if (isUp) {
+      AppUpgrade.appUpgrade(
+        context,
+        _checkAppInfo(),
+        cancelText: '以后再说',
+        okText: '马上升级',
+        iosAppId: 'id88888888',
+        // appMarketInfo: AppMarket.huaWei,
+        onCancel: () {
+          debugPrint('onCancel');
+        },
+        onOk: () {
+          debugPrint('onOk');
+        },
+        downloadProgress: (count, total) {
+          debugPrint('count:$count,total:$total');
+        },
+        downloadStatusChange: (DownloadStatus status, {dynamic error}) {
+          debugPrint('status:$status,error:$error');
+        },
+      );
+    }
   }
 
   Future<AppUpgradeInfo> _checkAppInfo() async {
@@ -93,14 +96,14 @@ class _HomeState extends State<Home> {
   }
 
   _getAppInfo() async {
-    var appInfo = await FlutterUpgrade.appInfo;
+    var appInfo = await AppUpgradePlugin.appInfo;
     setState(() {
       _appInfo = appInfo;
     });
   }
 
   _getInstallMarket() async {
-    List<String> marketList = await FlutterUpgrade.getInstallMarket();
+    List<String> marketList = await AppUpgradePlugin.getInstallMarket();
     for (var f in marketList) {
       _installMarkets += '$f,';
     }

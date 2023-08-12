@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'app_market.dart';
+import 'app_upgrade_plugin.dart';
 import 'download_status.dart';
 import 'simple_app_upgrade.dart';
 
@@ -25,9 +26,13 @@ class AppUpgrade {
   ///
   /// `cancelTextStyle`：取消按钮文字样式
   ///
+  /// `cancelWidget`：取消的 Widget 可以自定义
+  ///
   /// `okText`：升级按钮文字，默认"立即体验"
   ///
   /// `okTextStyle`：升级按钮文字样式
+  ///
+  /// `okWidget`：升级按钮的Widget 可以自定义
   ///
   /// `okBackgroundColors`：升级按钮背景颜色，需要2种颜色，左到右线性渐变,默认是系统的[Colors.blue,Colors.blue]
   ///
@@ -47,15 +52,17 @@ class AppUpgrade {
   ///
   /// `downloadStatusChange`：下载状态变化回调
   ///
-  static appUpgrade(
+  static void appUpgrade(
     BuildContext context,
     Future<AppUpgradeInfo> future, {
     TextStyle? titleStyle,
     TextStyle? contentStyle,
     String? cancelText,
     TextStyle? cancelTextStyle,
+    Widget? cancelWidget,
     String? okText,
     TextStyle? okTextStyle,
+    Widget? okWidget,
     List<Color>? okBackgroundColors,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -68,24 +75,29 @@ class AppUpgrade {
   }) {
     future.then((AppUpgradeInfo appUpgradeInfo) {
       _showUpgradeDialog(
-          context, appUpgradeInfo.title, appUpgradeInfo.contents,
-          apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
-          force: appUpgradeInfo.force,
-          titleStyle: titleStyle,
-          contentStyle: contentStyle,
-          cancelText: cancelText,
-          cancelTextStyle: cancelTextStyle,
-          okBackgroundColors: okBackgroundColors,
-          okText: okText,
-          okTextStyle: okTextStyle,
-          borderRadius: borderRadius,
-          progressBarColor: progressBarColor,
-          iosAppId: iosAppId,
-          appMarketInfo: appMarketInfo,
-          onCancel: onCancel,
-          onOk: onOk,
-          downloadProgress: downloadProgress,
-          downloadStatusChange: downloadStatusChange);
+        context,
+        appUpgradeInfo.title,
+        appUpgradeInfo.contents,
+        apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
+        force: appUpgradeInfo.force,
+        titleStyle: titleStyle,
+        contentStyle: contentStyle,
+        cancelText: cancelText,
+        cancelTextStyle: cancelTextStyle,
+        okBackgroundColors: okBackgroundColors,
+        okText: okText,
+        okTextStyle: okTextStyle,
+        borderRadius: borderRadius,
+        progressBarColor: progressBarColor,
+        iosAppId: iosAppId,
+        appMarketInfo: appMarketInfo,
+        onCancel: onCancel,
+        onOk: onOk,
+        downloadProgress: downloadProgress,
+        downloadStatusChange: downloadStatusChange,
+        cancelWidget: cancelWidget,
+        okWidget: okWidget,
+      );
     }).catchError((onError) {
       debugPrint('$onError');
     });
@@ -94,7 +106,7 @@ class AppUpgrade {
   ///
   /// 展示app升级提示框
   ///
-  static _showUpgradeDialog(
+  static void _showUpgradeDialog(
     BuildContext context,
     String title,
     List<String> contents, {
@@ -104,8 +116,10 @@ class AppUpgrade {
     TextStyle? contentStyle,
     String? cancelText,
     TextStyle? cancelTextStyle,
+    Widget? cancelWidget,
     String? okText,
     TextStyle? okTextStyle,
+    Widget? okWidget,
     List<Color>? okBackgroundColors,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -125,35 +139,88 @@ class AppUpgrade {
               return false;
             },
             child: Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.all(Radius.circular(borderRadius))),
-                child: SimpleAppUpgradeWidget(
-                    title: title,
-                    titleStyle: titleStyle,
-                    contents: contents,
-                    contentStyle: contentStyle,
-                    cancelText: cancelText,
-                    cancelTextStyle: cancelTextStyle,
-                    okText: okText,
-                    okTextStyle: okTextStyle,
-                    okBackgroundColors: okBackgroundColors ??
-                        [
-                          Colors.blue,
-                          Colors.blue
-                        ],
-                    progressBarColor: progressBarColor,
-                    borderRadius: borderRadius,
-                    downloadUrl: apkDownloadUrl,
-                    force: force,
-                    iosAppId: iosAppId,
-                    appMarketInfo: appMarketInfo,
-                    onCancel: onCancel,
-                    onOk: onOk,
-                    downloadProgress: downloadProgress,
-                    downloadStatusChange: downloadStatusChange)),
+              shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(borderRadius))),
+              child: SimpleAppUpgradeWidget(
+                title: title,
+                titleStyle: titleStyle,
+                contents: contents,
+                contentStyle: contentStyle,
+                cancelText: cancelText,
+                cancelTextStyle: cancelTextStyle,
+                okText: okText,
+                okTextStyle: okTextStyle,
+                okBackgroundColors:
+                    okBackgroundColors ?? [Colors.blue, Colors.blue],
+                progressBarColor: progressBarColor,
+                borderRadius: borderRadius,
+                downloadUrl: apkDownloadUrl,
+                force: force,
+                iosAppId: iosAppId,
+                appMarketInfo: appMarketInfo,
+                onCancel: onCancel,
+                onOk: onOk,
+                downloadProgress: downloadProgress,
+                downloadStatusChange: downloadStatusChange,
+                okWidget: okWidget,
+                cancelWidget: cancelWidget,
+              ),
+            ),
           );
         });
+  }
+
+  ///
+  ///
+  ///检查本地版本 和线上版本对比 判定是否可以升级
+  ///
+  /// `targetVersion`: 服务器后台返回的 版本 比如在 yaml 文件 配置的  version: 1.0.0+1   前面的 是服务器返回的 1.0.0 填写 targetVersion 字符长输入
+  ///
+  /// `targetCode`: 服务器后台返回的 code 比如上面的 +1 但是要注意 一般 flutter 打包之后 和本地 +1 里面他会默认 1000 比如上面的版本号 最后打包之后 变成 1002后台要注意上传
+  static Future<bool> checkUpdateVersion(
+      {required String targetVersion, String? targetCode}) async {
+    bool isUpdate = false;
+
+    try {
+      //大致有三个 条件
+      //对接入的字段进行 判断 如果 是后台返回的是 v1.1.1+1001
+      if (targetVersion.contains('v') || targetVersion.contains('V')) {
+        targetVersion = targetVersion.replaceAll('v', '');
+        targetVersion = targetVersion.replaceAll('V', '');
+      }
+
+      //如果是后台 返回的  1.1.1+1001
+      if (targetVersion.contains('+')) {
+        final list = targetVersion.split('+');
+        targetVersion = list[0];
+        targetCode = list[1];
+      }
+
+      final appInfo = await AppUpgradePlugin.appInfo;
+      //如果是后台返回的   1.1.1
+      final targetVersionNum = num.parse(targetVersion.replaceAll('.', ''));
+      final localVersionNum =
+          num.parse(appInfo.versionName!.replaceAll('.', ''));
+      if (targetVersionNum > localVersionNum) {
+        return true;
+      }
+
+      final localCodeNum = num.parse(appInfo.versionCode!);
+
+      if (targetCode != null) {
+        final targetCodeNum = num.parse(targetCode);
+        if (targetCodeNum > localCodeNum) {
+          return true;
+        }
+      }
+    } catch (error) {
+      print(
+          'you target version has some error please confirm targetVersion look like this v1.1.1+1001  or V1.1.1+1001  maybe this 1.1.1+1001 and 1.1.1');
+      print(error);
+    }
+
+    return isUpdate;
   }
 }
 

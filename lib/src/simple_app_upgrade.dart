@@ -6,35 +6,38 @@ import 'package:flutter/material.dart';
 
 import 'app_market.dart';
 import 'app_upgrade.dart';
+import 'app_upgrade_plugin.dart';
 import 'download_status.dart';
-import 'flutter_upgrade.dart';
 import 'liquid_progress_indicator.dart';
 
 ///
 /// des:app升级提示控件
 ///
 class SimpleAppUpgradeWidget extends StatefulWidget {
-  const SimpleAppUpgradeWidget(
-      {required this.title,
-      this.titleStyle,
-      required this.contents,
-      this.contentStyle,
-      this.cancelText,
-      this.cancelTextStyle,
-      this.okText,
-      this.okTextStyle,
-      this.okBackgroundColors,
-      this.progressBar,
-      this.progressBarColor,
-      this.borderRadius = 10,
-      this.downloadUrl,
-      this.force = false,
-      this.iosAppId,
-      this.appMarketInfo,
-      this.onCancel,
-      this.onOk,
-      this.downloadProgress,
-      this.downloadStatusChange});
+  const SimpleAppUpgradeWidget({
+    required this.title,
+    this.titleStyle,
+    required this.contents,
+    this.contentStyle,
+    this.cancelText,
+    this.cancelTextStyle,
+    this.cancelWidget,
+    this.okText,
+    this.okTextStyle,
+    this.okBackgroundColors,
+    this.okWidget,
+    this.progressBar,
+    this.progressBarColor,
+    this.borderRadius = 10,
+    this.downloadUrl,
+    this.force = false,
+    this.iosAppId,
+    this.appMarketInfo,
+    this.onCancel,
+    this.onOk,
+    this.downloadProgress,
+    this.downloadStatusChange,
+  });
 
   ///
   /// 升级标题
@@ -72,6 +75,11 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   final String? okText;
 
   ///
+  /// 确认控件Widget 可以指定以
+  ///
+  final Widget? okWidget;
+
+  ///
   /// 确认控件样式
   ///
   final TextStyle? okTextStyle;
@@ -87,7 +95,12 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   final String? cancelText;
 
   ///
-  /// 取消控件样式
+  /// 取消Widget 可以指定以
+  ///
+  final Widget? cancelWidget;
+
+  ///
+  /// 取消控件文字样式样式
   ///
   final TextStyle? cancelTextStyle;
 
@@ -172,13 +185,17 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildTitle() {
     return Padding(
-        padding: const EdgeInsets.only(top: 20, bottom: 30),
-        child: Text(widget.title,
-            style: widget.titleStyle ??
-                const TextStyle(
-                    fontSize: 22,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold)));
+      padding: const EdgeInsets.only(top: 20, bottom: 30),
+      child: Text(
+        widget.title,
+        style: widget.titleStyle ??
+            const TextStyle(
+              fontSize: 22,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
+    );
   }
 
   ///
@@ -236,15 +253,16 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
       child: InkWell(
           borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(widget.borderRadius)),
-          child: Container(
-            height: 45,
-            alignment: Alignment.center,
-            child: Text(
-              widget.cancelText ?? '以后再说',
-              style: widget.cancelTextStyle ??
-                  const TextStyle(fontSize: 16, color: Colors.black),
-            ),
-          ),
+          child: widget.cancelWidget ??
+              Container(
+                height: 45,
+                alignment: Alignment.center,
+                child: Text(
+                  widget.cancelText ?? '以后再说',
+                  style: widget.cancelTextStyle ??
+                      const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ),
           onTap: () {
             widget.onCancel?.call();
             Navigator.of(context).pop();
@@ -266,10 +284,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     var _okBackgroundColors = widget.okBackgroundColors;
     if (widget.okBackgroundColors == null ||
         widget.okBackgroundColors!.length != 2) {
-      _okBackgroundColors = [
-        Colors.blue,
-        Colors.blue
-      ];
+      _okBackgroundColors = [Colors.blue, Colors.blue];
     }
     return Ink(
       decoration: BoxDecoration(
@@ -280,16 +295,17 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           borderRadius: borderRadius),
       child: InkWell(
         borderRadius: borderRadius,
-        child: Container(
-          height: 45,
-          alignment: Alignment.center,
-          child: Text(
-            widget.okText ?? '立即体验',
-            style: widget.okTextStyle ??
-                const TextStyle(
-                    fontSize: 16, color: CupertinoColors.systemBackground),
-          ),
-        ),
+        child: widget.okWidget ??
+            Container(
+              height: 45,
+              alignment: Alignment.center,
+              child: Text(
+                widget.okText ?? '立即体验',
+                style: widget.okTextStyle ??
+                    const TextStyle(
+                        fontSize: 16, color: CupertinoColors.systemBackground),
+              ),
+            ),
         onTap: () {
           _clickOk();
         },
@@ -321,15 +337,15 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     widget.onOk?.call();
     if (Platform.isIOS) {
       //ios 需要跳转到app store更新，原生实现
-      FlutterUpgrade.toAppStore(widget.iosAppId!);
+      AppUpgradePlugin.toAppStore(widget.iosAppId!);
       return;
     }
     if (widget.downloadUrl == null || widget.downloadUrl!.isEmpty) {
       //没有下载地址，跳转到第三方渠道更新，原生实现
-      FlutterUpgrade.toMarket(appMarketInfo: widget.appMarketInfo);
+      AppUpgradePlugin.toMarket(appMarketInfo: widget.appMarketInfo);
       return;
     }
-    String path = await FlutterUpgrade.apkDownloadPath;
+    String path = await AppUpgradePlugin.apkDownloadPath;
     _downloadApk(widget.downloadUrl!, '$path/$_downloadApkName');
   }
 
@@ -359,7 +375,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           //下载完成，跳转到程序安装界面
           _updateDownloadStatus(DownloadStatus.done);
           Navigator.pop(context);
-          FlutterUpgrade.installAppForAndroid(path);
+          AppUpgradePlugin.installAppForAndroid(path);
         }
       });
     } catch (e) {
