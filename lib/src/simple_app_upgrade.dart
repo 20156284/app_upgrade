@@ -22,10 +22,12 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
     this.cancelText,
     this.cancelTextStyle,
     this.cancelWidget,
+    this.cancelBgColor,
     this.okText,
     this.okTextStyle,
     this.okBackgroundColors,
     this.okWidget,
+    this.okBgColor,
     this.progressBar,
     this.progressBarColor,
     this.borderRadius = 10,
@@ -80,6 +82,11 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   final Widget? okWidget;
 
   ///
+  /// OK按钮的背景颜色
+  ///
+  final Color? okBgColor;
+
+  ///
   /// 确认控件样式
   ///
   final TextStyle? okTextStyle;
@@ -98,6 +105,11 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   /// 取消Widget 可以指定以
   ///
   final Widget? cancelWidget;
+
+  ///
+  /// 取消按钮的背景颜色
+  ///
+  final Color? cancelBgColor;
 
   ///
   /// 取消控件文字样式样式
@@ -256,6 +268,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
           child: widget.cancelWidget ??
               Container(
                 height: 45,
+                color: widget.cancelBgColor,
                 alignment: Alignment.center,
                 child: Text(
                   widget.cancelText ?? '以后再说',
@@ -298,6 +311,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         child: widget.okWidget ??
             Container(
               height: 45,
+              color: widget.okBgColor,
               alignment: Alignment.center,
               child: Text(
                 widget.okText ?? '立即体验',

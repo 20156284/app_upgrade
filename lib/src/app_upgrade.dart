@@ -28,11 +28,15 @@ class AppUpgrade {
   ///
   /// `cancelWidget`：取消的 Widget 可以自定义
   ///
+  /// `cancelBgColor`：取消的 背景颜色
+  ///
   /// `okText`：升级按钮文字，默认"立即体验"
   ///
   /// `okTextStyle`：升级按钮文字样式
   ///
   /// `okWidget`：升级按钮的Widget 可以自定义
+  ///
+  /// `okBgColor`：升级背景颜色
   ///
   /// `okBackgroundColors`：升级按钮背景颜色，需要2种颜色，左到右线性渐变,默认是系统的[Colors.blue,Colors.blue]
   ///
@@ -60,9 +64,11 @@ class AppUpgrade {
     String? cancelText,
     TextStyle? cancelTextStyle,
     Widget? cancelWidget,
+    Color? cancelBgColor,
     String? okText,
     TextStyle? okTextStyle,
     Widget? okWidget,
+    Color? okBgColor,
     List<Color>? okBackgroundColors,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -117,9 +123,11 @@ class AppUpgrade {
     String? cancelText,
     TextStyle? cancelTextStyle,
     Widget? cancelWidget,
+    Color? cancelBgColor,
     String? okText,
     TextStyle? okTextStyle,
     Widget? okWidget,
+    Color? okBgColor,
     List<Color>? okBackgroundColors,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -160,11 +168,13 @@ class AppUpgrade {
                 iosAppId: iosAppId,
                 appMarketInfo: appMarketInfo,
                 onCancel: onCancel,
+                cancelBgColor: cancelBgColor,
+                cancelWidget: cancelWidget,
                 onOk: onOk,
+                okBgColor: okBgColor,
+                okWidget: okWidget,
                 downloadProgress: downloadProgress,
                 downloadStatusChange: downloadStatusChange,
-                okWidget: okWidget,
-                cancelWidget: cancelWidget,
               ),
             ),
           );
