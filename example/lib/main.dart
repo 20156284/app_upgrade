@@ -60,7 +60,8 @@ class _HomeState extends State<Home> {
         _checkAppInfo(),
         cancelText: '以后再说',
         okText: '马上升级',
-        okBgColor: Colors.red,
+        // okBgColor: Colors.red,
+        // cancelBgColor: Colors.deepPurple,
         iosAppId: 'id88888888',
         // appMarketInfo: AppMarket.huaWei,
         onCancel: () {

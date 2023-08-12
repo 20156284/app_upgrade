@@ -253,13 +253,15 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildCancelActionButton() {
     return InkWell(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(widget.borderRadius),
-      ),
       child: widget.cancelWidget ??
           Container(
             height: 45,
-            color: widget.cancelBgColor,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(widget.borderRadius),
+              ),
+              color: widget.cancelBgColor,
+            ),
             alignment: Alignment.center,
             child: Text(
               widget.cancelText ?? '以后再说',
@@ -279,13 +281,21 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   _buildOkActionButton() {
     return InkWell(
-      borderRadius: BorderRadius.only(
-        bottomRight: Radius.circular(widget.borderRadius),
-      ),
       child: widget.okWidget ??
           Container(
             height: 45,
-            color: widget.okBgColor,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(widget.borderRadius),
+              ),
+              color: widget.okBgColor,
+              gradient: widget.okBgColor == null
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.blue, Colors.blue])
+                  : null,
+            ),
             alignment: Alignment.center,
             child: Text(
               widget.okText ?? '立即体验',
