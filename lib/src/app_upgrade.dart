@@ -38,8 +38,6 @@ class AppUpgrade {
   ///
   /// `okBgColor`：升级背景颜色
   ///
-  /// `okBackgroundColors`：升级按钮背景颜色，需要2种颜色，左到右线性渐变,默认是系统的[Colors.blue,Colors.blue]
-  ///
   /// `progressBarColor`：下载进度条颜色
   ///
   /// `borderRadius`：圆角半径，默认20
@@ -69,7 +67,6 @@ class AppUpgrade {
     TextStyle? okTextStyle,
     Widget? okWidget,
     Color? okBgColor,
-    List<Color>? okBackgroundColors,
     Color? progressBarColor,
     double borderRadius = 20.0,
     String? iosAppId,
@@ -90,7 +87,6 @@ class AppUpgrade {
         contentStyle: contentStyle,
         cancelText: cancelText,
         cancelTextStyle: cancelTextStyle,
-        okBackgroundColors: okBackgroundColors,
         okText: okText,
         okTextStyle: okTextStyle,
         borderRadius: borderRadius,
@@ -159,8 +155,6 @@ class AppUpgrade {
                 cancelTextStyle: cancelTextStyle,
                 okText: okText,
                 okTextStyle: okTextStyle,
-                okBackgroundColors:
-                    okBackgroundColors ?? [Colors.blue, Colors.blue],
                 progressBarColor: progressBarColor,
                 borderRadius: borderRadius,
                 downloadUrl: apkDownloadUrl,

@@ -25,7 +25,6 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
     this.cancelBgColor,
     this.okText,
     this.okTextStyle,
-    this.okBackgroundColors,
     this.okWidget,
     this.okBgColor,
     this.progressBar,
@@ -90,11 +89,6 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   /// 确认控件样式
   ///
   final TextStyle? okTextStyle;
-
-  ///
-  /// 确认控件背景颜色,2种颜色左到右线性渐变
-  ///
-  final List<Color>? okBackgroundColors;
 
   ///
   /// 取消控件
@@ -260,11 +254,14 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   _buildCancelActionButton() {
     return Ink(
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(widget.borderRadius))),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(widget.borderRadius),
+        ),
+      ),
       child: InkWell(
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(widget.borderRadius)),
+            bottomLeft: Radius.circular(widget.borderRadius),
+          ),
           child: widget.cancelWidget ??
               Container(
                 height: 45,
@@ -287,27 +284,16 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 确定按钮
   ///
   _buildOkActionButton() {
-    var borderRadius =
-        BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius));
-    if (widget.force) {
-      borderRadius = BorderRadius.only(
-          bottomRight: Radius.circular(widget.borderRadius),
-          bottomLeft: Radius.circular(widget.borderRadius));
-    }
-    var _okBackgroundColors = widget.okBackgroundColors;
-    if (widget.okBackgroundColors == null ||
-        widget.okBackgroundColors!.length != 2) {
-      _okBackgroundColors = [Colors.blue, Colors.blue];
-    }
     return Ink(
       decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [_okBackgroundColors![0], _okBackgroundColors[1]]),
-          borderRadius: borderRadius),
+        borderRadius: BorderRadius.only(
+          bottomRight: Radius.circular(widget.borderRadius),
+        ),
+      ),
       child: InkWell(
-        borderRadius: borderRadius,
+        borderRadius: BorderRadius.only(
+          bottomRight: Radius.circular(widget.borderRadius),
+        ),
         child: widget.okWidget ??
             Container(
               height: 45,
