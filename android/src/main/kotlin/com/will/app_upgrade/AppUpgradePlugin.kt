@@ -22,109 +22,82 @@ import java.io.File
 import java.util.*
 
 /** FlutterUpgradePlugin */
-public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
+  private lateinit var channel : MethodChannel
+  private lateinit var mainContext: Context
 
-
-  override fun onDetachedFromActivity() {
+  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    mainContext = flutterPluginBinding.applicationContext
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "app_upgrade")
+    channel.setMethodCallHandler(this)
   }
 
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    channel.setMethodCallHandler(null)
   }
 
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    mContext = binding.activity
-  }
-
-  override fun onDetachedFromActivityForConfigChanges() {
-  }
-
-
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "app_upgrade")
-    channel.setMethodCallHandler(AppUpgradePlugin())
-  }
-
-  companion object {
-    lateinit var mContext: Context
-
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      this.mContext = registrar.activity()
-      val channel = MethodChannel(registrar.messenger(), "app_upgrade")
-      channel.setMethodCallHandler(AppUpgradePlugin())
-    }
-
-  }
-
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getAppInfo") {
-      getAppInfo(mContext, result)
-    } else if (call.method == "getApkDownloadPath") {
-      result.success(mContext.getExternalFilesDir("")?.absolutePath)
-    } else if (call.method == "install") {
-      //安装app
-      val path = call.argument<String>("path")
-      path?.also {
-        startInstall(mContext, it)
+  override fun onMethodCall(call: MethodCall, result: Result) {
+    when (call.method){
+      "getAppInfo" -> {
+        getAppInfo(mainContext, result)
       }
-    } else if (call.method == "getInstallMarket") {
-      var packageList = getInstallMarket(call.argument<List<String>>("packages"))
-      result.success(packageList)
-    } else if (call.method == "toMarket") {
-      val marketPackageName = call.argument<String>("marketPackageName")
-      val marketClassName = call.argument<String>("marketClassName")
-      toMarket(mContext, marketPackageName, marketClassName)
-    } else {
-      result.notImplemented()
+      "getApkDownloadPath" -> {
+        result.success(mainContext.getExternalFilesDir("")?.absolutePath)
+      }
+      "install" -> {
+        call.argument<String>("path")?.also { startInstall(mainContext, it) }
+      }
+      "getInstallMarket" -> {
+        result.success(getInstallMarket(mainContext, call.argument<List<String>>("packages")))
+      }
+      "jumpMarket" -> {
+        val marketPackageName = call.argument<String>("marketPackageName")
+        val marketClassName = call.argument<String>("marketClassName")
+        jumpMarket(mainContext, marketPackageName, marketClassName)
+      }
+      else -> result.notImplemented()
     }
   }
+
 
   /**
    * 获取app信息
    */
   fun getAppInfo(context: Context?, result: Result) {
     context?.also {
-      var packageInfo = it.packageManager.getPackageInfo(it.packageName, 0)
+      val packageInfo = it.packageManager.getPackageInfo(it.packageName, 0)
       val map = HashMap<String, String>()
-      map["packageName"] = packageInfo.packageName
-      map["versionName"] = packageInfo.versionName
-      map["versionCode"] = "${packageInfo.versionCode}"
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        map["packageName"] = packageInfo.packageName
+        map["versionName"] = packageInfo.versionName
+        map["versionCode"] = "${packageInfo.longVersionCode}"
+      } else {
+        map["packageName"] = packageInfo.packageName
+        map["versionName"] = packageInfo.versionName
+        map["versionCode"] = "${packageInfo.versionCode}"
+      }
+
       result.success(map)
     }
   }
 
-  /**
-   * 如果手机上安装多个应用市场则弹出对话框，由用户选择进入哪个市场
-   */
-  fun toMarket(context: Context) {
-    try {
-      var packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-      val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
-      val goToMarket = Intent(Intent.ACTION_VIEW, uri)
-      goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      context.startActivity(goToMarket)
-    } catch (e: ActivityNotFoundException) {
-      e.printStackTrace()
-      Toast.makeText(context, "您的手机没有安装应用商店", Toast.LENGTH_SHORT).show()
-    }
-  }
 
   /**
    * 直接跳转到指定应用市场
-   *
-   * @param context
-   * @param packageName
    */
-  fun toMarket(context: Context, marketPackageName: String?, marketClassName: String?) {
+  fun jumpMarket(context: Context, marketPackageName: String?, marketClassName: String?) {
     try {
-      var packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+      val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
       val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
-      var nameEmpty = marketPackageName == null || marketPackageName.isEmpty()
-      var classEmpty = marketClassName == null || marketClassName.isEmpty()
+      val nameEmpty = marketPackageName == null || marketPackageName.isEmpty()
+      val classEmpty = marketClassName == null || marketClassName.isEmpty()
       val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+
       if (nameEmpty || classEmpty) {
         goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       } else {
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         goToMarket.setClassName(marketPackageName!!, marketClassName!!)
       }
       context.startActivity(goToMarket)
@@ -134,18 +107,21 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
+
   /**
    * 获取已安装应用商店的包名列表
    */
-  fun getInstallMarket(packages: List<String>?): List<String> {
+  fun getInstallMarket(context: Context, packages: List<String>?): List<String> {
     val pkgs = ArrayList<String>()
+
     packages?.also {
-      for (i in packages.indices) {
-        if (isPackageExist(mContext, packages.get(i))) {
-          pkgs.add(packages.get(i))
+      for (i in it.indices) {
+        if (isPackageExist(context, it[i])) {
+          pkgs.add(it[i])
         }
       }
     }
+
     return pkgs
   }
 
@@ -153,32 +129,28 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
    * 是否存在当前应用市场
    *
    */
-  @SuppressLint("WrongConstant")
   fun isPackageExist(context: Context, packageName: String?): Boolean {
     val manager = context.packageManager
     val intent = Intent().setPackage(packageName)
-    val infos = manager.queryIntentActivities(intent,
-      PackageManager.GET_INTENT_FILTERS)
-    return if (infos == null || infos.size < 1) {
-      false
-    } else {
-      true
-    }
+    val infos = manager.queryIntentActivities(intent,  PackageManager.GET_RESOLVED_FILTER)
+    return infos.size >= 1
   }
+
 
   /**
    * 安装app，android 7.0及以上和以下方式不同
    */
   private fun startInstall(context: Context, path: String) {
     val file = File(path)
+
     if (!file.exists()) {
       return
     }
 
     val intent = Intent(Intent.ACTION_VIEW)
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       //7.0及以上
-
       val contentUri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
       intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
       intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -190,10 +162,6 @@ public class AppUpgradePlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
     }
-
-  }
-
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
   }
 }
 

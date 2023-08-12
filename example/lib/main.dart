@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
 import 'package:app_upgrade/app_upgrade.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
 
@@ -24,17 +25,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('App 升级测试'),
         ),
-        body: Stack(
-          children: <Widget>[
-            Center(
-              child: Column(
-                children: const <Widget>[
-                  Home(),
-                ],
-              ),
-            ),
-          ],
-        ),
+        body: const Home(),
       ),
     );
   }
@@ -97,8 +88,8 @@ class _HomeState extends State<Home> {
           '5、新增加了分类查看功能'
         ],
         force: false,
-        apkDownloadUrl: "https://aabtc.oss-cn-shanghai.aliyuncs.com/814d309ea161379612efe7ff05ed78ad.apk"
-    );
+        apkDownloadUrl:
+            "https://aabtc.oss-cn-shanghai.aliyuncs.com/814d309ea161379612efe7ff05ed78ad.apk");
   }
 
   _getAppInfo() async {
