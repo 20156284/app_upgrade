@@ -280,14 +280,19 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 确定按钮
   ///
   _buildOkActionButton() {
+    var borderRadius =
+        BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius));
+    if (widget.force) {
+      borderRadius = BorderRadius.only(
+          bottomRight: Radius.circular(widget.borderRadius),
+          bottomLeft: Radius.circular(widget.borderRadius));
+    }
     return InkWell(
       child: widget.okWidget ??
           Container(
             height: 45,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(widget.borderRadius),
-              ),
+              borderRadius: borderRadius,
               color: widget.okBgColor,
               gradient: widget.okBgColor == null
                   ? const LinearGradient(
