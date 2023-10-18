@@ -219,7 +219,7 @@ class AppUpgrade {
       if (targetCode != null) {
         final targetCodeNum = num.parse(targetCode);
         if (targetCodeNum > localCodeNum &&
-            targetVersionNum == localVersionNum) {
+            targetVersionNum >= localVersionNum) {
           return true;
         }
       }
