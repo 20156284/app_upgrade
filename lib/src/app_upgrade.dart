@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'app_market.dart';
 import 'app_upgrade_plugin.dart';
@@ -219,7 +218,8 @@ class AppUpgrade {
 
       if (targetCode != null) {
         final targetCodeNum = num.parse(targetCode);
-        if (targetCodeNum > localCodeNum) {
+        if (targetCodeNum > localCodeNum &&
+            targetVersionNum == localVersionNum) {
           return true;
         }
       }
