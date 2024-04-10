@@ -57,8 +57,8 @@ class _HomeState extends State<Home> {
         await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.1.1');
     if (isUp) {
       AppUpgrade.appUpgrade(
-        context,
-        _checkAppInfo(),
+        context: context,
+        future: _checkAppInfo(),
         cancelText: '以后再说',
         okText: '马上升级',
         // okBgColor: Colors.red,

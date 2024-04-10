@@ -301,7 +301,11 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
                   ? const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Colors.blue, Colors.blue])
+                      colors: <Color>[
+                        Colors.blue,
+                        Colors.blue,
+                      ],
+                    )
                   : null,
             ),
             alignment: Alignment.center,

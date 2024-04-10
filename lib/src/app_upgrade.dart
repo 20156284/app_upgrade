@@ -53,9 +53,9 @@ class AppUpgrade {
   ///
   /// `downloadStatusChange`：下载状态变化回调
   ///
-  static void appUpgrade(
-    BuildContext context,
-    Future<AppUpgradeInfo> future, {
+  static void appUpgrade({
+    required BuildContext context,
+    required Future<AppUpgradeInfo> future,
     TextStyle? titleStyle,
     TextStyle? contentStyle,
     String? cancelText,
@@ -206,10 +206,24 @@ class AppUpgrade {
       }
 
       final AppInfo appInfo = await AppUpgradePlugin.appInfo;
+
+      ///这样的情况是 假如后台返回的是 1.2.1 本地的是 1.1.12 长度不一致给目标添加几个0
+      if (targetVersion.length < appInfo.versionName!.length) {
+        final int targetVersionLength = targetVersion.length;
+        String buffer = '';
+        for (int i = 0;
+            i < appInfo.versionName!.length - targetVersionLength;
+            i++) {
+          buffer = '${targetVersion}0';
+        }
+        targetVersion = buffer;
+      }
+
       //如果是后台返回的   1.1.1
       final num targetVersionNum = num.parse(targetVersion.replaceAll('.', ''));
       final num localVersionNum =
           num.parse(appInfo.versionName!.replaceAll('.', ''));
+
       if (targetVersionNum > localVersionNum) {
         return true;
       }
