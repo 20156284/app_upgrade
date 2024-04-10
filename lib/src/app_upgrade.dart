@@ -103,7 +103,7 @@ class AppUpgrade {
         downloadProgress: downloadProgress,
         downloadStatusChange: downloadStatusChange,
       );
-    }).catchError((onError) {
+    }).catchError((Object onError) {
       debugPrint('$onError');
     });
   }
@@ -140,7 +140,7 @@ class AppUpgrade {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) {
+        builder: (BuildContext context) {
           return WillPopScope(
             onWillPop: () async {
               return false;
@@ -188,7 +188,7 @@ class AppUpgrade {
   /// `targetCode`: 服务器后台返回的 code 比如上面的 +1 但是要注意 一般 flutter 打包之后 和本地 +1 里面他会默认 1000 比如上面的版本号 最后打包之后 变成 1002后台要注意上传
   static Future<bool> checkUpdateVersion(
       {required String targetVersion, String? targetCode}) async {
-    bool isUpdate = false;
+    const bool isUpdate = false;
 
     try {
       //大致有三个 条件
@@ -200,33 +200,33 @@ class AppUpgrade {
 
       //如果是后台 返回的  1.1.1+1001
       if (targetVersion.contains('+')) {
-        final list = targetVersion.split('+');
+        final List<String> list = targetVersion.split('+');
         targetVersion = list[0];
         targetCode = list[1];
       }
 
-      final appInfo = await AppUpgradePlugin.appInfo;
+      final AppInfo appInfo = await AppUpgradePlugin.appInfo;
       //如果是后台返回的   1.1.1
-      final targetVersionNum = num.parse(targetVersion.replaceAll('.', ''));
-      final localVersionNum =
+      final num targetVersionNum = num.parse(targetVersion.replaceAll('.', ''));
+      final num localVersionNum =
           num.parse(appInfo.versionName!.replaceAll('.', ''));
       if (targetVersionNum > localVersionNum) {
         return true;
       }
 
-      final localCodeNum = num.parse(appInfo.versionCode!);
+      final num localCodeNum = num.parse(appInfo.versionCode!);
 
       if (targetCode != null) {
-        final targetCodeNum = num.parse(targetCode);
+        final num targetCodeNum = num.parse(targetCode);
         if (targetCodeNum > localCodeNum &&
             targetVersionNum >= localVersionNum) {
           return true;
         }
       }
     } catch (error) {
-      print(
+      debugPrint(
           'you target version has some error please confirm targetVersion look like this v1.1.1+1001  or V1.1.1+1001  maybe this 1.1.1+1001 and 1.1.1');
-      print(error);
+      debugPrint('$error');
     }
 
     return isUpdate;

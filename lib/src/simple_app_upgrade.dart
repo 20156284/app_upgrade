@@ -15,6 +15,7 @@ import 'liquid_progress_indicator.dart';
 ///
 class SimpleAppUpgradeWidget extends StatefulWidget {
   const SimpleAppUpgradeWidget({
+    Key? key,
     required this.title,
     this.titleStyle,
     required this.contents,
@@ -38,7 +39,7 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
     this.onOk,
     this.downloadProgress,
     this.downloadStatusChange,
-  });
+  }) : super(key: key);
 
   ///
   /// 升级标题
@@ -160,11 +161,12 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     return Stack(
       children: <Widget>[
         _buildInfoWidget(context),
-        _downloadProgress > 0
-            ? Positioned.fill(child: _buildDownloadProgress())
-            : Container(
-                height: 10,
-              )
+        if (_downloadProgress > 0)
+          Positioned.fill(child: _buildDownloadProgress())
+        else
+          Container(
+            height: 10,
+          )
       ],
     );
   }
@@ -189,7 +191,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 构建标题
   ///
-  _buildTitle() {
+  Widget _buildTitle() {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 30),
       child: Text(
@@ -207,12 +209,12 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 构建版本更新信息
   ///
-  _buildAppInfo() {
+  Widget _buildAppInfo() {
     return Container(
         padding: const EdgeInsets.only(left: 15, right: 15, bottom: 30),
         height: 200,
         child: ListView(
-          children: widget.contents.map((f) {
+          children: widget.contents.map((String f) {
             return Text(
               f,
               style: widget.contentStyle ??
@@ -225,7 +227,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 构建取消或者升级按钮
   ///
-  _buildAction() {
+  Widget _buildAction() {
     return Column(
       children: <Widget>[
         const Divider(
@@ -234,11 +236,12 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         ),
         Row(
           children: <Widget>[
-            widget.force
-                ? Container()
-                : Expanded(
-                    child: _buildCancelActionButton(),
-                  ),
+            if (widget.force)
+              Container()
+            else
+              Expanded(
+                child: _buildCancelActionButton(),
+              ),
             Expanded(
               child: _buildOkActionButton(),
             ),
@@ -251,7 +254,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 取消按钮
   ///
-  _buildCancelActionButton() {
+  Widget _buildCancelActionButton() {
     return InkWell(
       child: widget.cancelWidget ??
           Container(
@@ -279,8 +282,8 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 确定按钮
   ///
-  _buildOkActionButton() {
-    var borderRadius =
+  Widget _buildOkActionButton() {
+    BorderRadius borderRadius =
         BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius));
     if (widget.force) {
       borderRadius = BorderRadius.only(
@@ -335,26 +338,26 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 点击确定按钮
   ///
-  _clickOk() async {
+  Future<void> _clickOk() async {
     widget.onOk?.call();
     if (Platform.isIOS) {
       //ios 需要跳转到app store更新，原生实现
-      AppUpgradePlugin.toAppStore(widget.iosAppId!);
+      await AppUpgradePlugin.toAppStore(widget.iosAppId!);
       return;
     }
     if (widget.downloadUrl == null || widget.downloadUrl!.isEmpty) {
       //没有下载地址，跳转到第三方渠道更新，原生实现
-      AppUpgradePlugin.toMarket(appMarketInfo: widget.appMarketInfo);
+      await AppUpgradePlugin.toMarket(appMarketInfo: widget.appMarketInfo);
       return;
     }
-    String path = await AppUpgradePlugin.apkDownloadPath;
-    _downloadApk(widget.downloadUrl!, '$path/$_downloadApkName');
+    final String path = await AppUpgradePlugin.apkDownloadPath;
+    await _downloadApk(widget.downloadUrl!, '$path/$_downloadApkName');
   }
 
   ///
   /// 下载apk包
   ///
-  _downloadApk(String url, String path) async {
+  Future<void> _downloadApk(String url, String path) async {
     if (_downloadStatus == DownloadStatus.start ||
         _downloadStatus == DownloadStatus.downloading ||
         _downloadStatus == DownloadStatus.done) {
@@ -364,7 +367,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
 
     _updateDownloadStatus(DownloadStatus.start);
     try {
-      var dio = Dio();
+      final Dio dio = Dio();
       await dio.download(url, path, onReceiveProgress: (int count, int total) {
         if (total == -1) {
           _downloadProgress = 0.01;
@@ -387,7 +390,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
     }
   }
 
-  _updateDownloadStatus(DownloadStatus downloadStatus, {dynamic error}) {
+  void _updateDownloadStatus(DownloadStatus downloadStatus, {dynamic error}) {
     _downloadStatus = downloadStatus;
     widget.downloadStatusChange?.call(_downloadStatus, error: error);
   }

@@ -12,47 +12,53 @@ class AppUpgradePlugin {
   /// 获取app信息
   ///
   static Future<AppInfo> get appInfo async {
-    var result = await _channel.invokeMethod('getAppInfo');
+    final Map<Object?, Object?> result =
+        await _channel.invokeMethod('getAppInfo') as Map<Object?, Object?>;
     return AppInfo(
-        versionName: result['versionName'],
-        versionCode: result['versionCode'],
-        packageName: result['packageName']);
+      versionName: result['versionName'].toString(),
+      versionCode: result['versionCode'].toString(),
+      packageName: result['packageName'].toString(),
+    );
   }
 
   ///
   /// 获取apk下载路径
   ///
   static Future<String> get apkDownloadPath async {
-    return await _channel.invokeMethod('getApkDownloadPath');
+    return _channel.invokeMethod('getApkDownloadPath').toString();
   }
 
   ///
   /// Android 安装app
   ///
-  static installAppForAndroid(String path) async {
-    var map = {'path': path};
-    return await _channel.invokeMethod('install', map);
+  static Future<String> installAppForAndroid(String path) async {
+    final Map<String, String> map = <String, String>{'path': path};
+    return _channel.invokeMethod('install', map).toString();
   }
 
   ///
   /// 跳转到ios app store
   ///
-  static toAppStore(String id) async {
-    var map = {'id': id};
-    return await _channel.invokeMethod('toAppStore', map);
+  static Future<String> toAppStore(String id) async {
+    final Map<String, String> map = <String, String>{'id': id};
+    return _channel.invokeMethod('toAppStore', map).toString();
   }
 
   ///
   /// 获取android手机上安装的应用商店
   ///
-  static getInstallMarket({List<String>? marketPackageNames}) async {
-    List<String> packageNameList = AppMarket.buildInPackageNameList;
+  static Future<List<String>> getInstallMarket(
+      {List<String>? marketPackageNames}) async {
+    final List<String> packageNameList = AppMarket.buildInPackageNameList;
     if (marketPackageNames != null && marketPackageNames.isNotEmpty) {
       packageNameList.addAll(marketPackageNames);
     }
-    var map = {'packages': packageNameList};
-    var result = await _channel.invokeMethod('getInstallMarket', map);
-    List<String> resultList = (result as List).map((f) {
+    final Map<String, List<String>> map = <String, List<String>>{
+      'packages': packageNameList
+    };
+    final List<dynamic> result =
+        await _channel.invokeMethod('getInstallMarket', map) as List<dynamic>;
+    final List<String> resultList = result.map((dynamic f) {
       return '$f';
     }).toList();
     return resultList;
@@ -61,12 +67,12 @@ class AppUpgradePlugin {
   ///
   /// 跳转到应用商店
   ///
-  static toMarket({AppMarketInfo? appMarketInfo}) async {
-    var map = {
+  static Future<String> toMarket({AppMarketInfo? appMarketInfo}) async {
+    final Map<String, String> map = <String, String>{
       'marketPackageName':
           appMarketInfo != null ? appMarketInfo.packageName : '',
       'marketClassName': appMarketInfo != null ? appMarketInfo.className : ''
     };
-    return await _channel.invokeMethod('toMarket', map);
+    return _channel.invokeMethod('toMarket', map).toString();
   }
 }
