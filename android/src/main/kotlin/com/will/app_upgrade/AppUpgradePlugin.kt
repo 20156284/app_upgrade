@@ -17,7 +17,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.util.*
 
@@ -50,7 +49,9 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
       "getInstallMarket" -> {
         result.success(getInstallMarket(mainContext, call.argument<List<String>>("packages")))
       }
-      "jumpMarket" -> {
+      // Dart 端 AppUpgradePlugin.toMarket 走的方法名是 toMarket（历史上写成
+      // jumpMarket 导致 Android 跳应用市场一直 notImplemented）
+      "toMarket" -> {
         val marketPackageName = call.argument<String>("marketPackageName")
         val marketClassName = call.argument<String>("marketClassName")
         jumpMarket(mainContext, marketPackageName, marketClassName)
@@ -70,11 +71,12 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         map["packageName"] = packageInfo.packageName
-        map["versionName"] = packageInfo.versionName
+        // compileSdk 33+ 起 versionName 标注为可空
+        map["versionName"] = packageInfo.versionName ?: ""
         map["versionCode"] = "${packageInfo.longVersionCode}"
       } else {
         map["packageName"] = packageInfo.packageName
-        map["versionName"] = packageInfo.versionName
+        map["versionName"] = packageInfo.versionName ?: ""
         map["versionCode"] = "${packageInfo.versionCode}"
       }
 
