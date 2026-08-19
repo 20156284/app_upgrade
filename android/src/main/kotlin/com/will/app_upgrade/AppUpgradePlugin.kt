@@ -45,6 +45,8 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
       }
       "install" -> {
         call.argument<String>("path")?.also { startInstall(mainContext, it) }
+        // 必须回执，否则 Dart 端 await invokeMethod 永远不完成
+        result.success("")
       }
       "getInstallMarket" -> {
         result.success(getInstallMarket(mainContext, call.argument<List<String>>("packages")))
@@ -55,6 +57,7 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
         val marketPackageName = call.argument<String>("marketPackageName")
         val marketClassName = call.argument<String>("marketClassName")
         jumpMarket(mainContext, marketPackageName, marketClassName)
+        result.success("")
       }
       else -> result.notImplemented()
     }

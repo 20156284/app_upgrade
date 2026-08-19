@@ -25,7 +25,10 @@ class AppUpgradePlugin {
   /// 获取apk下载路径
   ///
   static Future<String> get apkDownloadPath async {
-    return _channel.invokeMethod('getApkDownloadPath').toString();
+    // 注意必须先 await 再 toString，否则拿到的是 Future 对象的 toString，
+    // 下载路径变成 "Instance of 'Future<dynamic>'" 导致写文件失败
+    final dynamic path = await _channel.invokeMethod('getApkDownloadPath');
+    return path?.toString() ?? '';
   }
 
   ///
@@ -33,7 +36,8 @@ class AppUpgradePlugin {
   ///
   static Future<String> installAppForAndroid(String path) async {
     final Map<String, String> map = <String, String>{'path': path};
-    return _channel.invokeMethod('install', map).toString();
+    final dynamic result = await _channel.invokeMethod('install', map);
+    return result?.toString() ?? '';
   }
 
   ///
@@ -41,7 +45,8 @@ class AppUpgradePlugin {
   ///
   static Future<String> toAppStore(String id) async {
     final Map<String, String> map = <String, String>{'id': id};
-    return _channel.invokeMethod('toAppStore', map).toString();
+    final dynamic result = await _channel.invokeMethod('toAppStore', map);
+    return result?.toString() ?? '';
   }
 
   ///

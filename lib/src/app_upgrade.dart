@@ -69,6 +69,7 @@ class AppUpgrade {
     Widget? progressBar,
     Color? progressBarColor,
     double borderRadius = 20.0,
+    Color backgroundColor = Colors.white,
     String? iosAppId,
     AppMarketInfo? appMarketInfo,
     VoidCallback? onCancel,
@@ -96,6 +97,7 @@ class AppUpgrade {
         progressBar: progressBar,
         progressBarColor: progressBarColor,
         borderRadius: borderRadius,
+        backgroundColor: backgroundColor,
         apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
         force: appUpgradeInfo.force,
         iosAppId: iosAppId,
@@ -130,6 +132,7 @@ class AppUpgrade {
     Widget? progressBar,
     Color? progressBarColor,
     double borderRadius = 20.0,
+    Color backgroundColor = Colors.white,
     String? apkDownloadUrl,
     bool force = false,
     String? iosAppId,
@@ -144,6 +147,8 @@ class AppUpgrade {
           return PopScope(
             canPop: false,
             child: Dialog(
+              // 显式背景色，不依赖宿主 DialogTheme（宿主可能定制成透明）
+              backgroundColor: backgroundColor,
               shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.all(Radius.circular(borderRadius))),
