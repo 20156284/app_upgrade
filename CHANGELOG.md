@@ -25,3 +25,7 @@
 * 6、修复 apk 下载必失败：apkDownloadPath/installAppForAndroid/toAppStore 未 await 通道结果，下载路径变成 "Instance of 'Future<dynamic>'"。
 * 7、原生 install/toMarket 补 result 回执，修复 Dart 端 await 永不完成。
 * 8、升级框新增 backgroundColor 参数（默认白色），不再依赖宿主 DialogTheme（宿主定制透明背景时弹窗内容会裸叠在页面上）。
+
+## [1.3.0]
+
+* 1、新增 okIntercept 参数：true 时点击升级只回调 onOk，内置的下载 apk / 跳应用市场都不执行，升级动作由宿主自行处理（如按机型品牌打开对应的市场或分发页面）。

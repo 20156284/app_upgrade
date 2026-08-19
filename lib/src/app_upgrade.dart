@@ -49,6 +49,9 @@ class AppUpgrade {
   ///
   /// `onOk`：点击更新按钮回调
   ///
+  /// `okIntercept`：true 时点击升级只回调 onOk，内置的下载 apk / 跳应用市场都不执行，
+  /// 升级动作由宿主自行处理（如打开自定义分发页面）
+  ///
   /// `downloadProgress`：下载进度回调
   ///
   /// `downloadStatusChange`：下载状态变化回调
@@ -74,6 +77,7 @@ class AppUpgrade {
     AppMarketInfo? appMarketInfo,
     VoidCallback? onCancel,
     VoidCallback? onOk,
+    bool okIntercept = false,
     DownloadProgressCallback? downloadProgress,
     DownloadStatusChangeCallback? downloadStatusChange,
   }) {
@@ -94,6 +98,7 @@ class AppUpgrade {
         okBgColor: okBgColor,
         okWidget: okWidget,
         onOk: onOk,
+        okIntercept: okIntercept,
         progressBar: progressBar,
         progressBarColor: progressBarColor,
         borderRadius: borderRadius,
@@ -129,6 +134,7 @@ class AppUpgrade {
     Color? okBgColor,
     Widget? okWidget,
     VoidCallback? onOk,
+    bool okIntercept = false,
     Widget? progressBar,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -163,6 +169,7 @@ class AppUpgrade {
                 cancelWidget: cancelWidget,
                 onCancel: onCancel,
                 onOk: onOk,
+                okIntercept: okIntercept,
                 okText: okText,
                 okTextStyle: okTextStyle,
                 okBgColor: okBgColor,

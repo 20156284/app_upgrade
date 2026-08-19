@@ -37,9 +37,16 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
     this.appMarketInfo,
     this.onCancel,
     this.onOk,
+    this.okIntercept = false,
     this.downloadProgress,
     this.downloadStatusChange,
   }) : super(key: key);
+
+  ///
+  /// true 时点击升级只回调 onOk，不执行内置的下载 apk / 跳应用市场，
+  /// 升级动作完全由宿主自行处理（如打开自定义的分发页面）
+  ///
+  final bool okIntercept;
 
   ///
   /// 升级标题
@@ -344,6 +351,9 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   Future<void> _clickOk() async {
     widget.onOk?.call();
+    if (widget.okIntercept) {
+      return;
+    }
     if (Platform.isIOS) {
       //ios 需要跳转到app store更新，原生实现
       await AppUpgradePlugin.toAppStore(widget.iosAppId!);
