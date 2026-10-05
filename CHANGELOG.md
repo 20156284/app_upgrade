@@ -29,3 +29,7 @@
 ## [1.3.0]
 
 * 1、新增 okIntercept 参数：true 时点击升级只回调 onOk，内置的下载 apk / 跳应用市场都不执行，升级动作由宿主自行处理（如按机型品牌打开对应的市场或分发页面）。
+
+## [1.3.1]
+
+* iOS 支持 Swift Package Manager（保留 CocoaPods），原生改为纯 Swift；toAppStore 补回调，Dart 侧 await 不再挂起。
