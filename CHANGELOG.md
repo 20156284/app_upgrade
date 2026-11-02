@@ -44,3 +44,14 @@
 * 修复 toMarket 未 await 通道结果；iosAppId 为空时点升级不再抛异常；下载中补发 DownloadStatus.downloading。
 * Android 11+ 声明 queries，getInstallMarket 能查到内置应用市场；修复水波纹每次进度刷新泄漏动画监听。
 * dio 依赖由 any 收紧为 ^5.4.2；Flutter 下限升到 3.27（withValues 自该版本起才有）。
+
+## [1.4.1]
+
+* 下载到 0 字节按失败处理，回到重试按钮，不再拉起安装。
+* 强制升级退出安装界面后再点，直接用已下载的安装包，不用整包重下；安装包被删才重下。
+* App 在后台时下载完，等回到前台再拉起安装，不再被系统拦截后无提示关框。
+* dio 下限升到 ^5.10.0：该版本起响应头之后、首包之前的停滞才会超时。
+* AppMarket.getBuildInMarket 查不到时返回 null，不再抛异常（返回类型变为可空）。
+* Android 跳转应用市场被系统拒绝时也提示，不再抛到 Dart 端；提示文案改为「无法打开应用商店」。
+* AppInfo 字段改为 final；原生缺值时为 null，不再是字符串 "null"。
+* Android minSdk 与 Flutter 3.27 对齐为 21。

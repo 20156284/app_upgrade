@@ -4,14 +4,14 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'app_upgrade'
-  s.version          = '0.0.1'
+  s.version          = '1.4.1'
   s.summary          = 'app upgrade'
   s.description      = <<-DESC
 app upgrade
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://gitee.com/willzh/app_upgrade'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = 'willzh'
   s.source           = { :path => '.' }
   s.source_files = 'app_upgrade/Sources/app_upgrade/**/*.swift'
   s.dependency 'Flutter'

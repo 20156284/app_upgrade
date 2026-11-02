@@ -22,11 +22,11 @@ class Wave extends StatefulWidget {
   final double frequency;
 
   @override
-  State createState() => _WaveState();
+  State<Wave> createState() => _WaveState();
 }
 
 class _WaveState extends State<Wave> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+  late final AnimationController _animationController;
 
   @override
   void initState() {
@@ -82,26 +82,24 @@ class _WaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     if (direction == Axis.horizontal) {
-      final Path path = Path()
+      return Path()
         ..addPolygon(_generateHorizontalWavePath(size), false)
         ..lineTo(0.0, size.height)
         ..lineTo(0.0, 0.0)
         ..close();
-      return path;
     }
 
-    final Path path = Path()
+    return Path()
       ..addPolygon(_generateVerticalWavePath(size), false)
       ..lineTo(size.width, size.height)
       ..lineTo(0.0, size.height)
       ..close();
-    return path;
   }
 
   List<Offset> _generateHorizontalWavePath(Size size) {
     final List<Offset> waveList = <Offset>[];
+    final double waveHeight = amplitude ?? size.width / 20;
     for (int i = -2; i <= size.height.toInt() + 2; i++) {
-      final double waveHeight = amplitude ?? size.width / 20;
       final double dx = math.sin((animationValue * 360 - i * frequency) %
                   360 *
                   (math.pi / 180)) *
@@ -114,8 +112,8 @@ class _WaveClipper extends CustomClipper<Path> {
 
   List<Offset> _generateVerticalWavePath(Size size) {
     final List<Offset> waveList = <Offset>[];
+    final double waveHeight = amplitude ?? size.height / 20;
     for (int i = -2; i <= size.width.toInt() + 2; i++) {
-      final double waveHeight = amplitude ?? size.height / 20;
       final double dy = math.sin((animationValue * 360 - i * frequency) %
                   360 *
                   (math.pi / 180)) *
@@ -128,5 +126,9 @@ class _WaveClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(_WaveClipper oldClipper) =>
-      animationValue != oldClipper.animationValue || value != oldClipper.value;
+      animationValue != oldClipper.animationValue ||
+      value != oldClipper.value ||
+      direction != oldClipper.direction ||
+      amplitude != oldClipper.amplitude ||
+      frequency != oldClipper.frequency;
 }

@@ -1,38 +1,31 @@
-
-
 class AppMarket {
   ///
   /// 获取所有内置的应用商店的包名
   ///
   static List<String> get buildInPackageNameList {
-    return buildInMarketList.map((AppMarketInfo f) {
-      return f.packageName;
-    }).toList();
+    return buildInMarketList.map((AppMarketInfo f) => f.packageName).toList();
   }
 
   ///
-  /// 通过包名获取内置应用商店
+  /// 通过多个包名获取内置应用商店，不是内置的跳过
   ///
   static List<AppMarketInfo> getBuildInMarketList(List<String> packageNames) {
-    final List<AppMarketInfo> marketList = <AppMarketInfo>[];
-    for (final String packageName in packageNames) {
-      for (final AppMarketInfo f in buildInMarketList) {
-        if (f.packageName == packageName) {
-          marketList.add(f);
-        }
-      }
-    }
-    return marketList;
+    return packageNames
+        .map(getBuildInMarket)
+        .whereType<AppMarketInfo>()
+        .toList();
   }
 
-  static AppMarketInfo getBuildInMarket(String packageName) {
-   late AppMarketInfo info;
+  ///
+  /// 通过包名获取内置应用商店，不是内置的返回 null
+  ///
+  static AppMarketInfo? getBuildInMarket(String packageName) {
     for (final AppMarketInfo f in buildInMarketList) {
       if (f.packageName == packageName) {
-        info = f;
+        return f;
       }
     }
-    return info;
+    return null;
   }
 
   ///
@@ -74,12 +67,15 @@ class AppMarket {
   ///
   /// oppo
   ///
-  static const AppMarketInfo oppo = AppMarketInfo('oppo', 'com.oppo.market', 'a.a.a.aoz');
+  static const AppMarketInfo oppo =
+      AppMarketInfo('oppo', 'com.oppo.market', 'a.a.a.aoz');
 
   ///
   /// 华为
   ///
-  static const AppMarketInfo huaWei = AppMarketInfo('huaWei', 'com.huawei.appmarket',
+  static const AppMarketInfo huaWei = AppMarketInfo(
+      'huaWei',
+      'com.huawei.appmarket',
       'com.huawei.appmarket.service.externalapi.view.ThirdApiActivity');
 
   ///
@@ -91,7 +87,9 @@ class AppMarket {
   ///
   /// 360
   ///
-  static const AppMarketInfo qiHoo = AppMarketInfo('qiHoo', 'com.qihoo.appstore',
+  static const AppMarketInfo qiHoo = AppMarketInfo(
+      'qiHoo',
+      'com.qihoo.appstore',
       'com.qihoo.appstore.distribute.SearchDistributionActivity');
 
   ///
@@ -111,8 +109,8 @@ class AppMarket {
   ///
   /// 豌豆荚
   ///
-  static const AppMarketInfo wanDouJia = AppMarketInfo('wanDouJia', 'com.wandoujia.phoenix2',
-      'com.pp.assistant.activity.PPMainActivity');
+  static const AppMarketInfo wanDouJia = AppMarketInfo('wanDouJia',
+      'com.wandoujia.phoenix2', 'com.pp.assistant.activity.PPMainActivity');
 }
 
 class AppMarketInfo {

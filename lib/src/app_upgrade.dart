@@ -100,123 +100,59 @@ class AppUpgrade {
       if (!context.mounted) {
         return;
       }
-      _showUpgradeDialog(
-        context,
-        appUpgradeInfo.title,
-        appUpgradeInfo.contents,
-        titleStyle: titleStyle,
-        contentStyle: contentStyle,
-        cancelText: cancelText,
-        cancelTextStyle: cancelTextStyle,
-        cancelBgColor: cancelBgColor,
-        cancelWidget: cancelWidget,
-        onCancel: onCancel,
-        okText: okText,
-        okTextStyle: okTextStyle,
-        okBgColor: okBgColor,
-        okWidget: okWidget,
-        onOk: onOk,
-        okIntercept: okIntercept,
-        theme: theme,
-        progressBar: progressBar,
-        progressBarColor: progressBarColor,
-        borderRadius: borderRadius,
-        backgroundColor: backgroundColor,
-        apkDownloadUrl: appUpgradeInfo.apkDownloadUrl,
-        force: appUpgradeInfo.force,
-        iosAppId: iosAppId,
-        appMarketInfo: appMarketInfo,
-        downloadProgress: downloadProgress,
-        downloadStatusChange: downloadStatusChange,
-      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return PopScope(
+              canPop: false,
+              child: Dialog(
+                // 显式背景色，不依赖宿主 DialogTheme（宿主可能定制成透明）
+                backgroundColor: backgroundColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(borderRadius))),
+                child: SimpleAppUpgradeWidget(
+                  title: appUpgradeInfo.title,
+                  titleStyle: titleStyle,
+                  contents: appUpgradeInfo.contents,
+                  contentStyle: contentStyle,
+                  cancelText: cancelText,
+                  cancelTextStyle: cancelTextStyle,
+                  cancelBgColor: cancelBgColor,
+                  cancelWidget: cancelWidget,
+                  onCancel: onCancel,
+                  onOk: onOk,
+                  okIntercept: okIntercept,
+                  theme: theme,
+                  okText: okText,
+                  okTextStyle: okTextStyle,
+                  okBgColor: okBgColor,
+                  okWidget: okWidget,
+                  progressBar: progressBar,
+                  progressBarColor: progressBarColor,
+                  borderRadius: borderRadius,
+                  downloadUrl: appUpgradeInfo.apkDownloadUrl,
+                  force: appUpgradeInfo.force,
+                  iosAppId: iosAppId,
+                  appMarketInfo: appMarketInfo,
+                  downloadProgress: downloadProgress,
+                  downloadStatusChange: downloadStatusChange,
+                ),
+              ),
+            );
+          });
     }).catchError((Object onError) {
       debugPrint('$onError');
     });
   }
 
   ///
-  /// 展示app升级提示框
+  /// 比较本地版本和线上版本，判定是否可以升级
   ///
-  static void _showUpgradeDialog(
-    BuildContext context,
-    String title,
-    List<String> contents, {
-    TextStyle? titleStyle,
-    TextStyle? contentStyle,
-    String? cancelText,
-    TextStyle? cancelTextStyle,
-    Color? cancelBgColor,
-    Widget? cancelWidget,
-    VoidCallback? onCancel,
-    String? okText,
-    TextStyle? okTextStyle,
-    Color? okBgColor,
-    Widget? okWidget,
-    VoidCallback? onOk,
-    bool okIntercept = false,
-    AppUpgradeTheme theme = AppUpgradeTheme.classic,
-    Widget? progressBar,
-    Color? progressBarColor,
-    double borderRadius = 20.0,
-    Color backgroundColor = Colors.white,
-    String? apkDownloadUrl,
-    bool force = false,
-    String? iosAppId,
-    AppMarketInfo? appMarketInfo,
-    DownloadProgressCallback? downloadProgress,
-    DownloadStatusChangeCallback? downloadStatusChange,
-  }) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return PopScope(
-            canPop: false,
-            child: Dialog(
-              // 显式背景色，不依赖宿主 DialogTheme（宿主可能定制成透明）
-              backgroundColor: backgroundColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(borderRadius))),
-              child: SimpleAppUpgradeWidget(
-                title: title,
-                titleStyle: titleStyle,
-                contents: contents,
-                contentStyle: contentStyle,
-                cancelText: cancelText,
-                cancelTextStyle: cancelTextStyle,
-                cancelBgColor: cancelBgColor,
-                cancelWidget: cancelWidget,
-                onCancel: onCancel,
-                onOk: onOk,
-                okIntercept: okIntercept,
-                theme: theme,
-                okText: okText,
-                okTextStyle: okTextStyle,
-                okBgColor: okBgColor,
-                okWidget: okWidget,
-                progressBar: progressBar,
-                progressBarColor: progressBarColor,
-                borderRadius: borderRadius,
-                downloadUrl: apkDownloadUrl,
-                force: force,
-                iosAppId: iosAppId,
-                appMarketInfo: appMarketInfo,
-                downloadProgress: downloadProgress,
-                downloadStatusChange: downloadStatusChange,
-              ),
-            ),
-          );
-        });
-  }
-
+  /// `targetVersion`：线上版本，支持 v1.1.1+1001、1.1.1+1001、1.1.1
   ///
-  ///
-  ///检查本地版本 和线上版本对比 判定是否可以升级
-  ///
-  /// `targetVersion`: 服务器后台返回的 版本 比如在 yaml 文件 配置的  version: 1.0.0+1   前面的 是服务器返回的 1.0.0 填写 targetVersion 字符长输入
-  ///
-  /// `targetCode`: 服务器后台返回的 code 比如上面的 +1 但是要注意 一般 flutter 打包之后 和本地 +1 里面他会默认 1000 比如上面的版本号 最后打包之后 变成 1002后台要注意上传
+  /// `targetCode`：线上 versionCode，`targetVersion` 带 + 时以 + 后面的为准，仅 Android 比较
   static Future<bool> checkUpdateVersion(
       {required String targetVersion, String? targetCode}) async {
     try {
@@ -234,9 +170,7 @@ class AppUpgrade {
           code != null &&
           int.parse(code) > int.parse(appInfo.versionCode!);
     } catch (error) {
-      debugPrint(
-          'you target version has some error please confirm targetVersion look like this v1.1.1+1001  or V1.1.1+1001  maybe this 1.1.1+1001 and 1.1.1');
-      debugPrint('$error');
+      debugPrint('targetVersion 应形如 v1.1.1+1001、1.1.1+1001 或 1.1.1：$error');
       return false;
     }
   }
@@ -261,9 +195,9 @@ class AppUpgrade {
 class AppInfo {
   AppInfo({this.versionName, this.versionCode, this.packageName});
 
-  String? versionName;
-  String? versionCode;
-  String? packageName;
+  final String? versionName;
+  final String? versionCode;
+  final String? packageName;
 }
 
 class AppUpgradeInfo {
@@ -297,10 +231,10 @@ class AppUpgradeInfo {
 ///
 /// 下载进度回调
 ///
-typedef DownloadProgressCallback = Function(int count, int total);
+typedef DownloadProgressCallback = void Function(int count, int total);
 
 ///
 /// 下载状态变化回调
 ///
-typedef DownloadStatusChangeCallback = Function(DownloadStatus downloadStatus,
-    {dynamic error});
+typedef DownloadStatusChangeCallback = void
+    Function(DownloadStatus downloadStatus, {dynamic error});

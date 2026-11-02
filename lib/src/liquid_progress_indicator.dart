@@ -3,38 +3,29 @@ import 'package:flutter/material.dart';
 import 'wave.dart';
 
 class LiquidLinearProgressIndicator extends ProgressIndicator {
-  LiquidLinearProgressIndicator({
+  const LiquidLinearProgressIndicator({
     super.key,
-    double super.value = 0.5,
+    required double super.value,
     super.backgroundColor,
     super.valueColor,
-    this.borderWidth,
-    this.borderColor,
-    this.borderRadius,
-    this.center,
+    required this.borderWidth,
+    required this.borderColor,
+    required this.borderRadius,
     this.direction = Axis.horizontal,
     this.amplitude,
     this.frequency = 1,
-  }) {
-    if (borderWidth != null && borderColor == null ||
-        borderColor != null && borderWidth == null) {
-      throw ArgumentError('borderWidth and borderColor should both be set.');
-    }
-  }
+  });
 
-  ///The width of the border, if this is set [borderColor] must also be set.
-  final double? borderWidth;
+  ///边框宽度
+  final double borderWidth;
 
-  ///The color of the border, if this is set [borderWidth] must also be set.
-  final Color? borderColor;
+  ///边框颜色
+  final Color borderColor;
 
-  ///The radius of the border.
-  final double? borderRadius;
+  ///圆角半径
+  final double borderRadius;
 
-  ///The widget to show in the center of the progress indicator.
-  final Widget? center;
-
-  ///The direction the liquid travels.
+  ///进度增长方向
   final Axis direction;
 
   ///波纹振幅（像素），为空时取进度方向长度的 1/20
@@ -43,14 +34,9 @@ class LiquidLinearProgressIndicator extends ProgressIndicator {
   ///波纹频率，1 表示每 360 像素一个周期
   final double frequency;
 
-  Color _getBackgroundColor(BuildContext context) =>
-      backgroundColor ?? const Color(0x0000BFFF);
-
-  Color _getValueColor(BuildContext context) =>
-      valueColor?.value ?? const Color(0x6600BFFF);
-
   @override
-  State<StatefulWidget> createState() => _LiquidLinearProgressIndicatorState();
+  State<LiquidLinearProgressIndicator> createState() =>
+      _LiquidLinearProgressIndicatorState();
 }
 
 class _LiquidLinearProgressIndicatorState
@@ -58,30 +44,23 @@ class _LiquidLinearProgressIndicatorState
   @override
   Widget build(BuildContext context) {
     return ClipPath(
-      clipper: _LinearClipper(
-        radius: widget.borderRadius!,
-      ),
+      clipper: _LinearClipper(radius: widget.borderRadius),
       child: CustomPaint(
         painter: _LinearPainter(
-          color: widget._getBackgroundColor(context),
-          radius: widget.borderRadius!,
+          color: widget.backgroundColor ?? const Color(0x0000BFFF),
+          radius: widget.borderRadius,
         ),
         foregroundPainter: _LinearBorderPainter(
-          color: widget.borderColor!,
-          width: widget.borderWidth!,
-          radius: widget.borderRadius!,
+          color: widget.borderColor,
+          width: widget.borderWidth,
+          radius: widget.borderRadius,
         ),
-        child: Stack(
-          children: <Widget>[
-            Wave(
-              value: widget.value!,
-              color: widget._getValueColor(context),
-              direction: widget.direction,
-              amplitude: widget.amplitude,
-              frequency: widget.frequency,
-            ),
-            if (widget.center != null) Center(child: widget.center),
-          ],
+        child: Wave(
+          value: widget.value!,
+          color: widget.valueColor?.value ?? const Color(0x6600BFFF),
+          direction: widget.direction,
+          amplitude: widget.amplitude,
+          frequency: widget.frequency,
         ),
       ),
     );
@@ -96,17 +75,17 @@ class _LinearPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()..color = color;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(0, 0, size.width, size.height),
           Radius.circular(radius),
         ),
-        paint);
+        Paint()..color = color);
   }
 
   @override
-  bool shouldRepaint(_LinearPainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(_LinearPainter oldDelegate) =>
+      color != oldDelegate.color || radius != oldDelegate.radius;
 }
 
 class _LinearBorderPainter extends CustomPainter {
@@ -122,17 +101,16 @@ class _LinearBorderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(
               width / 2, width / 2, size.width - width, size.height - width),
           Radius.circular(radius - width),
         ),
-        paint);
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width);
   }
 
   @override
@@ -149,16 +127,15 @@ class _LinearClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    final Path path = Path()
+    return Path()
       ..addRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(0, 0, size.width, size.height),
           Radius.circular(radius),
         ),
       );
-    return path;
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(_LinearClipper oldClipper) => radius != oldClipper.radius;
 }

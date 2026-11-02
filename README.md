@@ -7,7 +7,7 @@
 
 ```
 dependencies:
-  app_upgrade: ^1.4.0
+  app_upgrade: ^1.4.1
 ```
 
 2、执行flutter命令获取包：
@@ -26,17 +26,11 @@ import 'package:app_upgrade/app_upgrade.dart';
 
 ```
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.will.app_upgrade_example">
+          xmlns:tools="http://schemas.android.com/tools">
      <application
             android:label="AppUpgradeExample"
             android:icon="@mipmap/ic_launcher">
-				...
-				
-			<intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+        ...
         <provider
                 android:name="androidx.core.content.FileProvider"
                 android:authorities="${applicationId}.fileprovider"
@@ -51,7 +45,7 @@ import 'package:app_upgrade/app_upgrade.dart';
 </manifest>
 ```
 
->  注意：provider中authorities的值为当前App的包名，和顶部的package值保持一致。
+>  注意：provider中authorities的值必须是`${applicationId}.fileprovider`，插件按这个名字拉起安装。
 
 
 
@@ -64,12 +58,12 @@ import 'package:app_upgrade/app_upgrade.dart';
 ```dart
 @override
   void initState() {
+    super.initState();
     AppUpgrade.appUpgrade(
       context: context,
       future: _checkAppInfo(),
       iosAppId: 'id88888888',
     );
-    super.initState();
   }
 ```
 
@@ -162,10 +156,10 @@ _getInstallMarket() async {
 }
 ```
 
-方法返回手机安装的应用市场，根据安装的应用市场指定跳转应用市场，如果你要指定内置的应用市场，可以根据包名获取内置的应用市场的相关信息：
+方法返回手机安装的应用市场，根据安装的应用市场指定跳转应用市场，如果你要指定内置的应用市场，可以根据包名获取内置的应用市场的相关信息，不是内置的返回 null：
 
 ```dart
-AppMarketInfo _marketInfo = AppMarket.getBuildInMarket(packageName);
+AppMarketInfo? _marketInfo = AppMarket.getBuildInMarket(packageName);
 ```
 
 指定华为应用市场：
@@ -207,12 +201,11 @@ AppUpgrade.appUpgrade(
   iosAppId: 'id88888888',
   appMarketInfo: AppMarket.huaWei,
   onCancel: () {
-    print('onCancel');
+    debugPrint('onCancel');
   },
   onOk: () {
-    print('onOk');
+    debugPrint('onOk');
   },
-  
 );
 ```
 
@@ -227,10 +220,10 @@ AppUpgrade.appUpgrade(
   iosAppId: 'id88888888',
   appMarketInfo: AppMarket.huaWei,
   downloadProgress: (count, total) {
-    print('count:$count,total:$total');
+    debugPrint('count:$count,total:$total');
   },
   downloadStatusChange: (DownloadStatus status, {dynamic error}) {
-    print('status:$status,error:$error');
+    debugPrint('status:$status,error:$error');
   },
 );
 ```

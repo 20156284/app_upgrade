@@ -1,5 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -84,42 +86,42 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   final Color? progressBarColor;
 
   ///
-  /// 确认控件
+  /// 确认按钮文字
   ///
   final String? okText;
 
   ///
-  /// 确认控件Widget 可以指定以
+  /// 自定义确认按钮
   ///
   final Widget? okWidget;
 
   ///
-  /// OK按钮的背景颜色
+  /// 确认按钮背景颜色
   ///
   final Color? okBgColor;
 
   ///
-  /// 确认控件样式
+  /// 确认按钮文字样式
   ///
   final TextStyle? okTextStyle;
 
   ///
-  /// 取消控件
+  /// 取消按钮文字
   ///
   final String? cancelText;
 
   ///
-  /// 取消Widget 可以指定以
+  /// 自定义取消按钮
   ///
   final Widget? cancelWidget;
 
   ///
-  /// 取消按钮的背景颜色
+  /// 取消按钮背景颜色
   ///
   final Color? cancelBgColor;
 
   ///
-  /// 取消控件文字样式样式
+  /// 取消按钮文字样式
   ///
   final TextStyle? cancelTextStyle;
 
@@ -155,10 +157,10 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
   final DownloadStatusChangeCallback? downloadStatusChange;
 
   @override
-  State<StatefulWidget> createState() => _SimpleAppUpgradeWidget();
+  State<SimpleAppUpgradeWidget> createState() => _SimpleAppUpgradeWidgetState();
 }
 
-class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
+class _SimpleAppUpgradeWidgetState extends State<SimpleAppUpgradeWidget> {
   static const String _downloadApkName = 'temp.apk';
   static const String _defaultCancelText = '以后再说';
   static const String _defaultOkText = '立即体验';
@@ -176,6 +178,11 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   bool _totalUnknown = false;
 
+  ///
+  /// 安装包已下载完，用户退出安装界面后再点不用整包重下
+  ///
+  bool _apkReady = false;
+
   final CancelToken _cancelToken = CancelToken();
 
   @override
@@ -188,23 +195,19 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   Widget build(BuildContext context) {
     return switch (widget.theme) {
       AppUpgradeTheme.card => _buildCard(),
-      AppUpgradeTheme.classic => _buildClassic(context),
+      AppUpgradeTheme.classic => _buildClassic(),
     };
   }
 
   ///
   /// classic 主题：固定高度弹窗，下载时进度铺满整个弹窗
   ///
-  Widget _buildClassic(BuildContext context) {
+  Widget _buildClassic() {
     return Stack(
       children: <Widget>[
-        _buildInfoWidget(context),
+        _buildInfoWidget(),
         if (_downloadProgress > 0)
-          Positioned.fill(child: _buildDownloadProgress())
-        else
-          Container(
-            height: 10,
-          )
+          Positioned.fill(child: _buildDownloadProgress()),
       ],
     );
   }
@@ -212,16 +215,13 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   ///
   /// 信息展示widget
   ///
-  Widget _buildInfoWidget(BuildContext context) {
+  Widget _buildInfoWidget() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        //标题
         _buildTitle(),
-        //更新信息
         _buildAppInfo(),
-        //操作按钮
-        _buildAction()
+        _buildAction(),
       ],
     );
   }
@@ -274,9 +274,7 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
         ),
         Row(
           children: <Widget>[
-            if (widget.force)
-              Container()
-            else
+            if (!widget.force)
               Expanded(
                 child: _buildCancelActionButton(),
               ),
@@ -318,38 +316,25 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
   /// 确定按钮
   ///
   Widget _buildOkActionButton() {
-    BorderRadius borderRadius =
-        BorderRadius.only(bottomRight: Radius.circular(widget.borderRadius));
-    if (widget.force) {
-      borderRadius = BorderRadius.only(
-          bottomRight: Radius.circular(widget.borderRadius),
-          bottomLeft: Radius.circular(widget.borderRadius));
-    }
     return InkWell(
       onTap: _clickOk,
       child: widget.okWidget ??
           Container(
             height: 45,
             decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              color: widget.okBgColor,
-              gradient: widget.okBgColor == null
-                  ? const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: <Color>[
-                        Colors.blue,
-                        Colors.blue,
-                      ],
-                    )
-                  : null,
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(widget.borderRadius),
+                bottomLeft: widget.force
+                    ? Radius.circular(widget.borderRadius)
+                    : Radius.zero,
+              ),
+              color: widget.okBgColor ?? Colors.blue,
             ),
             alignment: Alignment.center,
             child: Text(
               widget.okText ?? _defaultOkText,
               style: widget.okTextStyle ??
-                  const TextStyle(
-                      fontSize: 16, color: CupertinoColors.systemBackground),
+                  const TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
     );
@@ -556,28 +541,68 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
       await AppUpgradePlugin.toAppStore(iosAppId);
       return;
     }
-    if (widget.downloadUrl == null || widget.downloadUrl!.isEmpty) {
+    final String? url = widget.downloadUrl;
+    if (url == null || url.isEmpty) {
       //没有下载地址，跳转到第三方渠道更新，原生实现
       await AppUpgradePlugin.toMarket(appMarketInfo: widget.appMarketInfo);
       return;
     }
-    await _downloadApk(widget.downloadUrl!);
+    await _downloadAndInstallApk(url);
   }
 
   ///
-  /// 下载apk包
+  /// 下载并安装apk包
   ///
-  Future<void> _downloadApk(String url) async {
+  Future<void> _downloadAndInstallApk(String url) async {
     _updateDownloadStatus(DownloadStatus.start);
-    setState(() {});
+    //已下好的直接安装，不闪进度条
+    if (!_apkReady) {
+      setState(() {});
+    }
+    try {
+      final String path =
+          '${await AppUpgradePlugin.apkDownloadPath}/$_downloadApkName';
+      if (!_apkReady || !File(path).existsSync()) {
+        await _downloadApk(url, path);
+        _apkReady = true;
+      }
+      //下载完成，跳转到程序安装界面
+      _updateDownloadStatus(DownloadStatus.done);
+      await _waitForeground();
+      if (!mounted) {
+        return;
+      }
+      await AppUpgradePlugin.installAppForAndroid(path);
+      if (!mounted) {
+        return;
+      }
+      if (widget.force) {
+        //强制升级不关框：用户退出安装界面后仍须重新安装
+        _updateDownloadStatus(DownloadStatus.none);
+        _resetDownload();
+      } else {
+        //上面可能盖着别的路由，只移除升级框自身
+        Navigator.of(context).removeRoute(ModalRoute.of(context)!);
+      }
+    } catch (e) {
+      _apkReady = false;
+      _updateDownloadStatus(DownloadStatus.error, error: e);
+      if (mounted) {
+        _resetDownload();
+      }
+    }
+  }
+
+  ///
+  /// 下载apk包，空响应按失败处理：拉起安装只会看到系统解析失败
+  ///
+  Future<void> _downloadApk(String url, String path) async {
     //超时让网络停滞走 catch，回到重试按钮
     final Dio dio = Dio(BaseOptions(
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
     ));
     try {
-      final String path =
-          '${await AppUpgradePlugin.apkDownloadPath}/$_downloadApkName';
       await dio.download(url, path, cancelToken: _cancelToken,
           onReceiveProgress: (int count, int total) {
         if (_downloadStatus == DownloadStatus.start) {
@@ -597,29 +622,27 @@ class _SimpleAppUpgradeWidget extends State<SimpleAppUpgradeWidget> {
               : count / total;
         });
       });
-      //下载完成，跳转到程序安装界面
-      _updateDownloadStatus(DownloadStatus.done);
-      await AppUpgradePlugin.installAppForAndroid(path);
-      if (!mounted) {
-        return;
-      }
-      if (widget.force) {
-        //强制升级不关框：用户退出安装界面后仍须重新安装
-        _updateDownloadStatus(DownloadStatus.none);
-        _resetDownload();
-      } else {
-        //上面可能盖着别的路由，只移除升级框自身
-        Navigator.of(context).removeRoute(ModalRoute.of(context)!);
-      }
-    } catch (e) {
-      debugPrint('$e');
-      _updateDownloadStatus(DownloadStatus.error, error: e);
-      if (mounted) {
-        _resetDownload();
-      }
     } finally {
       dio.close();
     }
+    if (await File(path).length() == 0) {
+      throw StateError('downloaded apk is empty');
+    }
+  }
+
+  ///
+  /// 后台拉不起安装界面（Android 10 起系统拦截），等回到前台
+  ///
+  Future<void> _waitForeground() async {
+    final AppLifecycleState? state = WidgetsBinding.instance.lifecycleState;
+    if (state == null || state == AppLifecycleState.resumed) {
+      return;
+    }
+    final Completer<void> resumed = Completer<void>();
+    final AppLifecycleListener listener =
+        AppLifecycleListener(onResume: resumed.complete);
+    await resumed.future;
+    listener.dispose();
   }
 
   void _resetDownload() {

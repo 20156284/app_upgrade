@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:app_upgrade/app_upgrade.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomeState();
+  State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -79,8 +79,7 @@ class _HomeState extends State<Home> {
           '4、修复一些软件在使用时自动退出bug',
           '5、新增加了分类查看功能'
         ],
-        apkDownloadUrl:
-            'https://d-03.winudf.com/custom/com.apkpure.aegon-3198667.apk?_fn=QVBLUHVyZV92My4xOS44NjA2X2Fwa3B1cmUuY29tLmFwaw&_p=Y29tLmFwa3B1cmUuYWVnb24&am=2coSICGa7h3SGogHe5c9jQ&arg=apkpure%3A%2F%2Fcampaign%2F%3Futm_medium%3Dapkpure%26utm_source%3Dtext_home-m%26report_context%3D%7B%22channel_id%22%3A%221006%22%7D&at=1712131620&download_id=no_1072302033432695&k=a6f0a63f25b120d11c036be863452f88660e5fa8&r=https%3A%2F%2Fapkpure.com%2Fcn%2F&uu=http%3A%2F%2F172.16.73.1%2Fcustom%2Fcom.apkpure.aegon-3198667.apk%3Fk%3De084e669a136b86b01e4568062dfe0ab660e5fa8');
+        apkDownloadUrl: 'https://example.com/app-release.apk');
   }
 
   Future<void> _getAppInfo() async {
@@ -94,6 +93,9 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _getInstallMarket() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
     final List<String> marketList = await AppUpgradePlugin.getInstallMarket();
     if (!mounted) {
       return;

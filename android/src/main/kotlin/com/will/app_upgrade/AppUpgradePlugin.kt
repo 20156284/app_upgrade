@@ -1,6 +1,5 @@
 package com.will.app_upgrade
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,17 +8,14 @@ import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.io.File
 
-/** AppUpgradePlugin */
-public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
-  private lateinit var channel : MethodChannel
+class AppUpgradePlugin : FlutterPlugin, MethodCallHandler {
+  private lateinit var channel: MethodChannel
   private lateinit var mainContext: Context
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -33,9 +29,9 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    when (call.method){
+    when (call.method) {
       "getAppInfo" -> {
-        getAppInfo(mainContext, result)
+        result.success(getAppInfo(mainContext))
       }
       "getApkDownloadPath" -> {
         result.success(mainContext.getExternalFilesDir("")?.absolutePath)
@@ -48,122 +44,80 @@ public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
       "getInstallMarket" -> {
         result.success(getInstallMarket(mainContext, call.argument<List<String>>("packages")))
       }
-      // Dart 端 AppUpgradePlugin.toMarket 走的方法名是 toMarket（历史上写成
-      // jumpMarket 导致 Android 跳应用市场一直 notImplemented）
       "toMarket" -> {
-        val marketPackageName = call.argument<String>("marketPackageName")
-        val marketClassName = call.argument<String>("marketClassName")
-        jumpMarket(mainContext, marketPackageName, marketClassName)
+        jumpMarket(mainContext, call.argument<String>("marketPackageName"), call.argument<String>("marketClassName"))
         result.success("")
       }
       else -> result.notImplemented()
     }
   }
 
-
   /**
    * 获取app信息
    */
-  fun getAppInfo(context: Context?, result: Result) {
-    context?.also {
-      val packageInfo = it.packageManager.getPackageInfo(it.packageName, 0)
-      val map = HashMap<String, String>()
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        map["packageName"] = packageInfo.packageName
-        // compileSdk 33+ 起 versionName 标注为可空
-        map["versionName"] = packageInfo.versionName ?: ""
-        map["versionCode"] = "${packageInfo.longVersionCode}"
+  private fun getAppInfo(context: Context): Map<String, String> {
+    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+    return mapOf(
+      "packageName" to packageInfo.packageName,
+      // compileSdk 33+ 起 versionName 标注为可空
+      "versionName" to (packageInfo.versionName ?: ""),
+      "versionCode" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        "${packageInfo.longVersionCode}"
       } else {
-        map["packageName"] = packageInfo.packageName
-        map["versionName"] = packageInfo.versionName ?: ""
-        map["versionCode"] = "${packageInfo.versionCode}"
-      }
-
-      result.success(map)
-    }
+        "${packageInfo.versionCode}"
+      },
+    )
   }
-
 
   /**
    * 直接跳转到指定应用市场
    */
-  fun jumpMarket(context: Context, marketPackageName: String?, marketClassName: String?) {
+  private fun jumpMarket(context: Context, marketPackageName: String?, marketClassName: String?) {
+    val goToMarket = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}"))
+      .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    if (!marketPackageName.isNullOrEmpty() && !marketClassName.isNullOrEmpty()) {
+      goToMarket.setClassName(marketPackageName, marketClassName)
+    }
     try {
-      val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-      val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
-      val nameEmpty = marketPackageName == null || marketPackageName.isEmpty()
-      val classEmpty = marketClassName == null || marketClassName.isEmpty()
-      val goToMarket = Intent(Intent.ACTION_VIEW, uri)
-
-      if (nameEmpty || classEmpty) {
-        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      } else {
-        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        goToMarket.setClassName(marketPackageName!!, marketClassName!!)
-      }
       context.startActivity(goToMarket)
-    } catch (e: ActivityNotFoundException) {
-      e.printStackTrace()
-      Toast.makeText(context, "您的手机没有安装应用商店($marketPackageName)", Toast.LENGTH_SHORT).show()
+    } catch (e: RuntimeException) {
+      // 没有市场，或指定的市场页面不对外开放
+      Toast.makeText(context, "无法打开应用商店", Toast.LENGTH_SHORT).show()
     }
   }
-
 
   /**
    * 获取已安装应用商店的包名列表
    */
-  fun getInstallMarket(context: Context, packages: List<String>?): List<String> {
-    val pkgs = ArrayList<String>()
-
-    packages?.also {
-      for (i in it.indices) {
-        if (isPackageExist(context, it[i])) {
-          pkgs.add(it[i])
-        }
-      }
-    }
-
-    return pkgs
+  private fun getInstallMarket(context: Context, packages: List<String>?): List<String> {
+    return packages.orEmpty().filter { isPackageExist(context, it) }
   }
 
   /**
    * 是否存在当前应用市场
-   *
    */
-  fun isPackageExist(context: Context, packageName: String?): Boolean {
-    val manager = context.packageManager
+  private fun isPackageExist(context: Context, packageName: String): Boolean {
     val intent = Intent().setPackage(packageName)
-    val infos = manager.queryIntentActivities(intent,  PackageManager.GET_RESOLVED_FILTER)
-    return infos.size >= 1
+    return context.packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER).isNotEmpty()
   }
-
 
   /**
    * 安装app，android 7.0及以上和以下方式不同
    */
   private fun startInstall(context: Context, path: String) {
     val file = File(path)
-
     if (!file.exists()) {
       return
     }
-
-    val intent = Intent(Intent.ACTION_VIEW)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      //7.0及以上
-      val contentUri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-      intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-      intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
-      context.startActivity(intent)
+    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     } else {
-      //7.0以下
-      intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive")
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      context.startActivity(intent)
+      Uri.fromFile(file)
     }
+    context.startActivity(
+      Intent(Intent.ACTION_VIEW)
+        .setDataAndType(uri, "application/vnd.android.package-archive")
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    )
   }
 }
-
