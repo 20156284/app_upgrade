@@ -33,3 +33,14 @@
 ## [1.3.1]
 
 * iOS 支持 Swift Package Manager（保留 CocoaPods），原生改为纯 Swift；toAppStore 补回调，Dart 侧 await 不再挂起。
+
+## [1.4.0]
+
+* 新增 AppUpgradeTheme（classic / card）与 theme 参数，默认 classic，外观不变；card 为内容自适应高度的卡片，下载时在卡片内显示粗水波纹进度条与百分比；系统字体放大时按钮随文字长高、百分比不折行。
+* 下载设置 connectTimeout 15 秒、receiveTimeout 30 秒，两种主题失败后都回到可重试按钮；组件销毁时取消下载，并回调 DownloadStatus.error。
+* 修复服务端未返回总长度时进度停在 1%、下载完不拉起安装。
+* 强制升级下载完成后不再关框，用户退出安装界面后仍须重新安装（此时回调 DownloadStatus.none）；安装拉起失败回到重试按钮，不再无提示关框；非强制下载完只移除升级框自身，不再误关盖在上面的路由。
+* 修复 checkUpdateVersion 比较错误（如本地 1.10.0、目标 1.9.0 误判为可升级），iOS 不再比较固定为 0 的 versionCode。
+* 修复 toMarket 未 await 通道结果；iosAppId 为空时点升级不再抛异常；下载中补发 DownloadStatus.downloading。
+* Android 11+ 声明 queries，getInstallMarket 能查到内置应用市场；修复水波纹每次进度刷新泄漏动画监听。
+* dio 依赖由 any 收紧为 ^5.4.2；Flutter 下限升到 3.27（withValues 自该版本起才有）。

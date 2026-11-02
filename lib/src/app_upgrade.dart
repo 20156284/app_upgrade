@@ -1,9 +1,17 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app_market.dart';
 import 'app_upgrade_plugin.dart';
 import 'download_status.dart';
 import 'simple_app_upgrade.dart';
+
+///
+/// 升级框主题：classic 为原样式，card 为自适应高度卡片 + 水波纹进度条
+///
+enum AppUpgradeTheme { classic, card }
 
 ///
 /// des:App 升级组件
@@ -21,7 +29,7 @@ class AppUpgrade {
   ///
   /// `contentStyle`：版本信息内容文字样式
   ///
-  /// `cancelText`：取消按钮文字，默认"取消"
+  /// `cancelText`：取消按钮文字，默认"以后再说"
   ///
   /// `cancelTextStyle`：取消按钮文字样式
   ///
@@ -37,9 +45,13 @@ class AppUpgrade {
   ///
   /// `okBgColor`：升级背景颜色
   ///
+  /// `progressBar`：自定义下载进度条
+  ///
   /// `progressBarColor`：下载进度条颜色
   ///
   /// `borderRadius`：圆角半径，默认20
+  ///
+  /// `backgroundColor`：升级框背景色，默认白色
   ///
   /// `iosAppId`：ios app id,用于跳转app store,格式：idxxxxxxxx
   ///
@@ -51,6 +63,8 @@ class AppUpgrade {
   ///
   /// `okIntercept`：true 时点击升级只回调 onOk，内置的下载 apk / 跳应用市场都不执行，
   /// 升级动作由宿主自行处理（如打开自定义分发页面）
+  ///
+  /// `theme`：升级框主题，默认 [AppUpgradeTheme.classic]，card 为自适应高度卡片 + 水波纹进度条
   ///
   /// `downloadProgress`：下载进度回调
   ///
@@ -78,10 +92,14 @@ class AppUpgrade {
     VoidCallback? onCancel,
     VoidCallback? onOk,
     bool okIntercept = false,
+    AppUpgradeTheme theme = AppUpgradeTheme.classic,
     DownloadProgressCallback? downloadProgress,
     DownloadStatusChangeCallback? downloadStatusChange,
   }) {
     future.then((AppUpgradeInfo appUpgradeInfo) {
+      if (!context.mounted) {
+        return;
+      }
       _showUpgradeDialog(
         context,
         appUpgradeInfo.title,
@@ -99,6 +117,7 @@ class AppUpgrade {
         okWidget: okWidget,
         onOk: onOk,
         okIntercept: okIntercept,
+        theme: theme,
         progressBar: progressBar,
         progressBarColor: progressBarColor,
         borderRadius: borderRadius,
@@ -135,6 +154,7 @@ class AppUpgrade {
     Widget? okWidget,
     VoidCallback? onOk,
     bool okIntercept = false,
+    AppUpgradeTheme theme = AppUpgradeTheme.classic,
     Widget? progressBar,
     Color? progressBarColor,
     double borderRadius = 20.0,
@@ -170,6 +190,7 @@ class AppUpgrade {
                 onCancel: onCancel,
                 onOk: onOk,
                 okIntercept: okIntercept,
+                theme: theme,
                 okText: okText,
                 okTextStyle: okTextStyle,
                 okBgColor: okBgColor,
@@ -198,62 +219,42 @@ class AppUpgrade {
   /// `targetCode`: 服务器后台返回的 code 比如上面的 +1 但是要注意 一般 flutter 打包之后 和本地 +1 里面他会默认 1000 比如上面的版本号 最后打包之后 变成 1002后台要注意上传
   static Future<bool> checkUpdateVersion(
       {required String targetVersion, String? targetCode}) async {
-    const bool isUpdate = false;
-
     try {
-      //大致有三个 条件
-      //对接入的字段进行 判断 如果 是后台返回的是 v1.1.1+1001
-      if (targetVersion.contains('v') || targetVersion.contains('V')) {
-        targetVersion = targetVersion.replaceAll('v', '');
-        targetVersion = targetVersion.replaceAll('V', '');
-      }
-
-      //如果是后台 返回的  1.1.1+1001
-      if (targetVersion.contains('+')) {
-        final List<String> list = targetVersion.split('+');
-        targetVersion = list[0];
-        targetCode = list[1];
-      }
-
+      // 兼容 v1.1.1+1001、V1.1.1+1001、1.1.1+1001、1.1.1
+      final List<String> target =
+          targetVersion.replaceAll(RegExp('[vV]'), '').split('+');
       final AppInfo appInfo = await AppUpgradePlugin.appInfo;
-
-      ///这样的情况是 假如后台返回的是 1.2.1 本地的是 1.1.12 长度不一致给目标添加几个0
-      if (targetVersion.length < appInfo.versionName!.length) {
-        final int targetVersionLength = targetVersion.length;
-        String buffer = '';
-        for (int i = 0;
-            i < appInfo.versionName!.length - targetVersionLength;
-            i++) {
-          buffer = '${targetVersion}0';
-        }
-        targetVersion = buffer;
+      final int compared = _compareVersion(target[0], appInfo.versionName!);
+      if (compared != 0) {
+        return compared > 0;
       }
-
-      //如果是后台返回的   1.1.1
-      final num targetVersionNum = num.parse(targetVersion.replaceAll('.', ''));
-      final num localVersionNum =
-          num.parse(appInfo.versionName!.replaceAll('.', ''));
-
-      if (targetVersionNum > localVersionNum) {
-        return true;
-      }
-
-      final num localCodeNum = num.parse(appInfo.versionCode!);
-
-      if (targetCode != null) {
-        final num targetCodeNum = num.parse(targetCode);
-        if (targetCodeNum > localCodeNum &&
-            targetVersionNum >= localVersionNum) {
-          return true;
-        }
-      }
+      final String? code = target.length > 1 ? target[1] : targetCode;
+      // iOS 的 versionCode 固定为 0，不参与比较
+      return defaultTargetPlatform == TargetPlatform.android &&
+          code != null &&
+          int.parse(code) > int.parse(appInfo.versionCode!);
     } catch (error) {
       debugPrint(
           'you target version has some error please confirm targetVersion look like this v1.1.1+1001  or V1.1.1+1001  maybe this 1.1.1+1001 and 1.1.1');
       debugPrint('$error');
+      return false;
     }
+  }
 
-    return isUpdate;
+  ///
+  /// 按段比较版本号，缺的段按 0 算：1.10.0 > 1.9.0，1.2 == 1.2.0
+  ///
+  static int _compareVersion(String a, String b) {
+    final List<int> left = a.split('.').map(int.parse).toList();
+    final List<int> right = b.split('.').map(int.parse).toList();
+    for (int i = 0; i < math.max(left.length, right.length); i++) {
+      final int compared = (i < left.length ? left[i] : 0)
+          .compareTo(i < right.length ? right[i] : 0);
+      if (compared != 0) {
+        return compared;
+      }
+    }
+    return 0;
   }
 }
 

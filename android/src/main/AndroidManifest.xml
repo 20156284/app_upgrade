@@ -1,4 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Android 11 起需声明才能查询内置应用市场是否已安装 -->
+    <queries>
+        <package android:name="com.xiaomi.market"/>
+        <package android:name="com.meizu.mstore"/>
+        <package android:name="com.bbk.appstore"/>
+        <package android:name="com.oppo.market"/>
+        <package android:name="com.huawei.appmarket"/>
+        <package android:name="zte.com.market"/>
+        <package android:name="com.qihoo.appstore"/>
+        <package android:name="com.tencent.android.qqdownloader"/>
+        <package android:name="com.pp.assistant"/>
+        <package android:name="com.wandoujia.phoenix2"/>
+    </queries>
 </manifest>

@@ -1,6 +1,5 @@
 package com.will.app_upgrade
 
-import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -8,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -18,9 +16,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.io.File
-import java.util.*
 
-/** FlutterUpgradePlugin */
+/** AppUpgradePlugin */
 public class AppUpgradePlugin :  FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
   private lateinit var mainContext: Context

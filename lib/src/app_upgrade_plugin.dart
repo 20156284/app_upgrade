@@ -78,6 +78,6 @@ class AppUpgradePlugin {
           appMarketInfo != null ? appMarketInfo.packageName : '',
       'marketClassName': appMarketInfo != null ? appMarketInfo.className : ''
     };
-    return _channel.invokeMethod('toMarket', map).toString();
+    return (await _channel.invokeMethod('toMarket', map))?.toString() ?? '';
   }
 }

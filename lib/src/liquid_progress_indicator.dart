@@ -4,21 +4,18 @@ import 'wave.dart';
 
 class LiquidLinearProgressIndicator extends ProgressIndicator {
   LiquidLinearProgressIndicator({
-    Key? key,
-    double value = 0.5,
-    Color? backgroundColor,
-    Animation<Color>? valueColor,
+    super.key,
+    double super.value = 0.5,
+    super.backgroundColor,
+    super.valueColor,
     this.borderWidth,
     this.borderColor,
     this.borderRadius,
     this.center,
     this.direction = Axis.horizontal,
-  }) : super(
-          key: key,
-          value: value,
-          backgroundColor: backgroundColor,
-          valueColor: valueColor,
-        ) {
+    this.amplitude,
+    this.frequency = 1,
+  }) {
     if (borderWidth != null && borderColor == null ||
         borderColor != null && borderWidth == null) {
       throw ArgumentError('borderWidth and borderColor should both be set.');
@@ -40,13 +37,17 @@ class LiquidLinearProgressIndicator extends ProgressIndicator {
   ///The direction the liquid travels.
   final Axis direction;
 
+  ///波纹振幅（像素），为空时取进度方向长度的 1/20
+  final double? amplitude;
+
+  ///波纹频率，1 表示每 360 像素一个周期
+  final double frequency;
+
   Color _getBackgroundColor(BuildContext context) =>
-      backgroundColor ??
-      const Color(0x0000BFFF); //Theme.of(context).backgroundColor;
+      backgroundColor ?? const Color(0x0000BFFF);
 
   Color _getValueColor(BuildContext context) =>
-      valueColor?.value ??
-      const Color(0x6600BFFF); //Theme.of(context).accentColor;
+      valueColor?.value ?? const Color(0x6600BFFF);
 
   @override
   State<StatefulWidget> createState() => _LiquidLinearProgressIndicatorState();
@@ -76,6 +77,8 @@ class _LiquidLinearProgressIndicatorState
               value: widget.value!,
               color: widget._getValueColor(context),
               direction: widget.direction,
+              amplitude: widget.amplitude,
+              frequency: widget.frequency,
             ),
             if (widget.center != null) Center(child: widget.center),
           ],
@@ -123,12 +126,11 @@ class _LinearBorderPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = width;
-    final double alteredRadius = radius;
     canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(
               width / 2, width / 2, size.width - width, size.height - width),
-          Radius.circular(alteredRadius - width),
+          Radius.circular(radius - width),
         ),
         paint);
   }

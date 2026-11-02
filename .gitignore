@@ -58,3 +58,6 @@ pubspec.lock
 # IOS PodFile
 #Podfile
 *.lock
+
+# 测试只在本机跑
+/test/

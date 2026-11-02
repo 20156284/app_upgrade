@@ -7,12 +7,12 @@
 
 ```
 dependencies:
-  app_upgrade: ^1.1.0
+  app_upgrade: ^1.4.0
 ```
 
 2、执行flutter命令获取包：
 ```
-flutter pub get`
+flutter pub get
 ```
 
 3、引入
@@ -65,8 +65,8 @@ import 'package:app_upgrade/app_upgrade.dart';
 @override
   void initState() {
     AppUpgrade.appUpgrade(
-      context,
-      _checkAppInfo(),
+      context: context,
+      future: _checkAppInfo(),
       iosAppId: 'id88888888',
     );
     super.initState();
@@ -107,7 +107,7 @@ import 'package:app_upgrade/app_upgrade.dart';
 访问后台接口获取新版本的信息一般需要当前App的包名和版本，查询方法如下：
 
 ```dart
-await FlutterUpgrade.appInfo
+await AppUpgradePlugin.appInfo
 ```
 
 返回的类型是`AppInfo`：
@@ -150,7 +150,7 @@ Android平台则会判断是否设置了apk下载url，如果设置了则下载a
 
 ```dart
 _getInstallMarket() async {
-  List<String> marketList = await FlutterUpgrade.getInstallMarket();
+  List<String> marketList = await AppUpgradePlugin.getInstallMarket();
 }
 ```
 
@@ -158,7 +158,7 @@ _getInstallMarket() async {
 
 ```dart
 _getInstallMarket() async {
-  List<String> marketList = await FlutterUpgrade.getInstallMarket(marketPackageNames: ['google play 包名']);
+  List<String> marketList = await AppUpgradePlugin.getInstallMarket(marketPackageNames: ['google play 包名']);
 }
 ```
 
@@ -172,8 +172,8 @@ AppMarketInfo _marketInfo = AppMarket.getBuildInMarket(packageName);
 
 ```dart
 AppUpgrade.appUpgrade(
-  context,
-  _checkAppInfo(),
+  context: context,
+  future: _checkAppInfo(),
   iosAppId: 'id88888888',
   appMarketInfo: AppMarket.huaWei
 );
@@ -183,8 +183,8 @@ AppUpgrade.appUpgrade(
 
 ```dart
 AppUpgrade.appUpgrade(
-  context,
-  _checkAppInfo(),
+  context: context,
+  future: _checkAppInfo(),
   iosAppId: 'id88888888',
   appMarketInfo: AppMarketInfo(
     '应用市场名称（选填）','应用市场包名','应用市场类名'
@@ -200,8 +200,8 @@ AppUpgrade.appUpgrade(
 
 ```dart
 AppUpgrade.appUpgrade(
-  context,
-  _checkAppInfo(),
+  context: context,
+  future: _checkAppInfo(),
   cancelText: '以后再说',
   okText: '马上升级',
   iosAppId: 'id88888888',
@@ -220,8 +220,8 @@ AppUpgrade.appUpgrade(
 
 ```dart
 AppUpgrade.appUpgrade(
-  context,
-  _checkAppInfo(),
+  context: context,
+  future: _checkAppInfo(),
   cancelText: '以后再说',
   okText: '马上升级',
   iosAppId: 'id88888888',
@@ -244,7 +244,9 @@ AppUpgrade.appUpgrade(
 title及升级内容文字样式设置：
 
 ```dart
-AppUpgrade.appUpgrade(context, _checkAppInfo(),
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
     titleStyle: TextStyle(fontSize: 30),
     contentStyle: TextStyle(fontSize: 18),
     ...
@@ -256,7 +258,9 @@ AppUpgrade.appUpgrade(context, _checkAppInfo(),
 设置“取消”和“升级按钮”文本和样式：
 
 ```dart
-AppUpgrade.appUpgrade(context, _checkAppInfo(),
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
     cancelText: '以后再说',
     cancelTextStyle: TextStyle(color: Colors.grey),
     okText: '马上升级',
@@ -267,11 +271,13 @@ AppUpgrade.appUpgrade(context, _checkAppInfo(),
 
 默认“取消”按钮文本是"以后再说"，默认“升级”按钮的文本是“立即体验”。
 
-设置“升级”按钮的背景颜色，需要2种颜色，2种颜色左到右线性渐变，如果想设置纯色，只需将2种颜色设置为同一个颜色即可，默认颜色是系统的`primaryColor`:
+设置“升级”按钮的背景颜色，默认蓝色：
 
 ```dart
-AppUpgrade.appUpgrade(context, _checkAppInfo(),
-    okBackgroundColors: [Colors.blue, Colors.lightBlue],
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
+    okBgColor: Colors.lightBlue,
     ...
 )
 ```
@@ -279,8 +285,21 @@ AppUpgrade.appUpgrade(context, _checkAppInfo(),
 设置进度条的颜色：
 
 ```dart
-AppUpgrade.appUpgrade(context, _checkAppInfo(),
-    progressBarColor: Colors.lightBlue.withOpacity(.4),
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
+    progressBarColor: Colors.lightBlue.withValues(alpha: 0.4),
+    ...
+)
+```
+
+使用卡片主题（内容自适应高度，下载时在卡片内显示粗水波纹进度条与百分比），默认是 `AppUpgradeTheme.classic`：
+
+```dart
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
+    theme: AppUpgradeTheme.card,
     ...
 )
 ```
@@ -288,7 +307,9 @@ AppUpgrade.appUpgrade(context, _checkAppInfo(),
 设置升级提示框的圆角半径，默认是20：
 
 ```dart
-AppUpgrade.appUpgrade(context, _checkAppInfo(),
+AppUpgrade.appUpgrade(
+    context: context,
+    future: _checkAppInfo(),
     borderRadius: 15,
     ...
 )

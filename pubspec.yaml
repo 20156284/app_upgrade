@@ -1,17 +1,17 @@
 name: app_upgrade
 description: App 升级功能
-version: 1.3.1
+version: 1.4.0
 homepage: https://gitee.com/willzh/app_upgrade
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.16.0'
+  flutter: '>=3.27.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  dio: any
+  dio: ^5.4.2
 
 dev_dependencies:
   flutter_test:

@@ -5,18 +5,8 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
-  @override
-  State createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,27 +34,24 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    super.initState();
     _checkAppUpgrade();
     _getInstallMarket();
     _getAppInfo();
-    super.initState();
   }
 
-  Future<void> _checkAppUpgrade() async {
-    // final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'v1.1.1+1000');
-    // final isUp = await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.1.1+1000');
+  Future<void> _checkAppUpgrade(
+      [AppUpgradeTheme theme = AppUpgradeTheme.classic]) async {
     final bool isUp =
         await AppUpgrade.checkUpdateVersion(targetVersion: 'V1.1.1');
-    if (isUp) {
+    if (isUp && mounted) {
       AppUpgrade.appUpgrade(
         context: context,
         future: _checkAppInfo(),
+        theme: theme,
         cancelText: '以后再说',
         okText: '马上升级',
-        // okBgColor: Colors.red,
-        // cancelBgColor: Colors.deepPurple,
         iosAppId: 'id88888888',
-        // appMarketInfo: AppMarket.huaWei,
         onCancel: () {
           debugPrint('onCancel');
         },
@@ -83,9 +70,6 @@ class _HomeState extends State<Home> {
 
   Future<AppUpgradeInfo> _checkAppInfo() async {
     //这里一般访问网络接口，将返回的数据解析成如下格式
-    // return Future.delayed(const Duration(seconds: 1), () {
-    //
-    // });
     return AppUpgradeInfo(
         title: '新版本V1.1.1',
         contents: <String>[
@@ -101,26 +85,20 @@ class _HomeState extends State<Home> {
 
   Future<void> _getAppInfo() async {
     final AppInfo appInfo = await AppUpgradePlugin.appInfo;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _appInfo = appInfo;
     });
   }
 
   Future<void> _getInstallMarket() async {
-    final StringBuffer buffer = StringBuffer();
     final List<String> marketList = await AppUpgradePlugin.getInstallMarket();
-    for (final String f in marketList) {
-      // _installMarkets += '$f,';
-
-      buffer.write('$f,');
+    if (!mounted) {
+      return;
     }
-
-    _installMarkets = buffer.toString();
-
-    // for (int i = 0; i < 10; i++) {
-    //   buffer.write('a');
-    // }
-    // return buffer.toString();
+    setState(() => _installMarkets = marketList.join(','));
   }
 
   @override
@@ -131,6 +109,14 @@ class _HomeState extends State<Home> {
         Text('versionName:${_appInfo?.versionName}'),
         Text('versionCode:${_appInfo?.versionCode}'),
         Text('安装的应用商店:$_installMarkets'),
+        TextButton(
+          onPressed: _checkAppUpgrade,
+          child: const Text('弹出升级框：classic'),
+        ),
+        TextButton(
+          onPressed: () => _checkAppUpgrade(AppUpgradeTheme.card),
+          child: const Text('弹出升级框：card'),
+        ),
       ],
     );
   }
