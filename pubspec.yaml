@@ -1,6 +1,6 @@
 name: app_upgrade
 description: App 升级功能
-version: 1.4.1
+version: 1.4.2
 homepage: https://gitee.com/willzh/app_upgrade
 
 environment:

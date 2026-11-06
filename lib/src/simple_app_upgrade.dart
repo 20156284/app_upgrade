@@ -161,7 +161,6 @@ class SimpleAppUpgradeWidget extends StatefulWidget {
 }
 
 class _SimpleAppUpgradeWidgetState extends State<SimpleAppUpgradeWidget> {
-  static const String _downloadApkName = 'temp.apk';
   static const String _defaultCancelText = '以后再说';
   static const String _defaultOkText = '立即体验';
   static const double _cardActionHeight = 44;
@@ -560,9 +559,10 @@ class _SimpleAppUpgradeWidgetState extends State<SimpleAppUpgradeWidget> {
       setState(() {});
     }
     try {
-      final String path =
-          '${await AppUpgradePlugin.apkDownloadPath}/$_downloadApkName';
+      final String dir = await AppUpgradePlugin.apkDownloadPath;
+      final String path = '$dir/${_apkName(url)}';
       if (!_apkReady || !File(path).existsSync()) {
+        _deleteOldApks(dir);
         await _downloadApk(url, path);
         _apkReady = true;
       }
@@ -590,6 +590,32 @@ class _SimpleAppUpgradeWidgetState extends State<SimpleAppUpgradeWidget> {
       if (mounted) {
         _resetDownload();
       }
+    }
+  }
+
+  ///
+  /// 安装包按下载地址的文件名保存（如 1.0.26_2.apk），不同版本不共用同一路径，
+  /// 免得系统安装器沿用旧包；地址里取不到 .apk 文件名时退回 temp.apk
+  ///
+  static String _apkName(String url) {
+    final String? name = Uri.tryParse(url)?.pathSegments.lastOrNull;
+    return name != null && name.toLowerCase().endsWith('.apk')
+        ? name
+        : 'temp.apk';
+  }
+
+  ///
+  /// 清掉之前下载的安装包：按版本命名后不再互相覆盖，留着只占空间
+  ///
+  static void _deleteOldApks(String dir) {
+    try {
+      for (final FileSystemEntity e in Directory(dir).listSync()) {
+        if (e is File && e.path.toLowerCase().endsWith('.apk')) {
+          e.deleteSync();
+        }
+      }
+    } on FileSystemException catch (e) {
+      debugPrint('清理旧安装包失败：$e');
     }
   }
 
